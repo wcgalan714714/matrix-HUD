@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MATRIX • HUD</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&amp;display=swap');
+        
+        :root {
+            --matrix-green: #00ff41;
+            --matrix-dark: #000000;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000000;
+            color: #00ff41;
+            font-family: 'VT323', 'Courier New', Courier, monospace;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            -webkit-user-select: none;
+            user-select: none;
+            image-rendering: pixelated;
+        }
+        
+        #matrix-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            pointer-events: none;
+            font-size: 13px;
+            line-height: 1.1;
+        }
+        
+        .hud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px 4px;
+            background: rgba(0, 0, 0, 0.85);
+            border-bottom: 1px solid #003300;
+            pointer-events: auto;
+            z-index: 20;
+        }
+        
+        .logo {
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 6px #00ff41;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+        }
+        
+        .intensity {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 68px;
+        }
+        
+        .intensity-bar {
+            width: 42px;
+            height: 5px;
+            background: #001100;
+            border: 1px solid #00ff41;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .intensity-fill {
+            height: 100%;
+            background: #00ff41;
+            width: 0%;
+            transition: width 80ms linear;
+            box-shadow: 0 0 4px #00ff41;
+        }
+        
+        .mode {
+            padding: 1px 6px;
+            border: 1px solid #00ff41;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+        
+        .main-hud {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0 10px 8px;
+            position: relative;
+            z-index: 15;
+        }
+        
+        .context {
+            font-size: 12px;
+            opacity: 0.85;
+            text-align: center;
+            margin-bottom: 4px;
+            text-shadow: 0 0 4px rgba(0,0,0,0.8);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+            pointer-events: auto;
+        }
+        
+        .hud-btn {
+            background: rgba(0, 20, 0, 0.9);
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            padding: 3px 9px;
+            font-size: 11px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .hud-btn:active {
+            background: #003300;
+            transform: scale(0.96);
+        }
+        
+        .hud-btn.danger {
+            border-color: #ff0033;
+            color: #ff0033;
+        }
+        
+        .quote {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 92%;
+            text-align: center;
+            font-size: 15px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.92);
+            border: 1px solid #00ff41;
+            box-shadow: 0 0 12px rgba(0, 255, 65, 0.6);
+            z-index: 40;
+            display: none;
+            pointer-events: none;
+            line-height: 1.2;
+        }
+        
+        .quote.show {
+            display: block;
+        }
+        
+        .log {
+            position: absolute;
+            bottom: 4px;
+            left: 6px;
+            right: 6px;
+            max-height: 52px;
+            overflow-y: auto;
+            font-size: 9px;
+            opacity: 0.6;
+            pointer-events: auto;
+            z-index: 25;
+            line-height: 1.15;
+        }
+        
+        .log .event {
+            margin-bottom: 1px;
+            padding-left: 3px;
+            border-left: 2px solid #003300;
+        }
+        
+        .log .event.glitch {
+            color: #ff6666;
+            border-left-color: #ff0033;
+        }
+        
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 2px,
+                rgba(0, 255, 65, 0.035) 2px,
+                rgba(0, 255, 65, 0.035) 4px
+            );
+            pointer-events: none;
+            z-index: 5;
+            animation: scan 3.5s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(200%); }
+        }
+        
+        .warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 11px;
+            text-align: center;
+            max-width: 85%;
+            opacity: 0.7;
+            z-index: 30;
+            pointer-events: none;
+        }
+        
+        .glasses-badge {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            font-size: 8px;
+            padding: 0 4px;
+            border: 1px solid #00ff41;
+            opacity: 0.5;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Rain Canvas -->
+    <canvas id="matrix-canvas"></canvas>
+    
+    <!-- Scanlines -->
+    <div class="scanline"></div>
+    
+    <!-- HUD Overlay -->
+    <div id="ui-overlay">
+        <!-- Header -->
+        <div class="hud-header">
+            <div class="logo">MATRIX</div>
+            
+            <div class="status">
+                <div class="intensity">
+                    <div class="intensity-bar">
+                        <div id="intensity-fill" class="intensity-fill" style="width: 18%;"></div>
+                    </div>
+                    <span id="intensity-value" style="font-size:10px; min-width:26px; text-align:right;">18</span>
+                </div>
+                
+                <div id="mode-indicator" class="mode">SUBTLE</div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-hud">
+            <!-- Welcome -->
+            <div id="welcome" style="text-align:center; padding-top: 18%;">
+                <div style="font-size:22px; margin-bottom:6px; text-shadow:0 0 8px #00ff41;">THERE IS NO<br>SPOON</div>
+                <div style="font-size:11px; opacity:0.7; margin-bottom:14px;">GLASSES HUD RECREATION</div>
+                
+                <button id="enter-btn" class="hud-btn" style="font-size:13px; padding:6px 18px;">
+                    ENTER SIMULATION
+                </button>
+                
+                <div class="warning" style="margin-top:18px; font-size:9px;">
+                    HEADPHONES RECOMMENDED • MIC PERMISSION<br>
+                    MOVE TO INCREASE INTENSITY
+                </div>
+            </div>
+            
+            <!-- Active HUD -->
+            <div id="active-hud" class="hidden" style="text-align:center;">
+                <div id="context-label" class="context">Subtle code flowing...</div>
+                
+                <div class="controls">
+                    <button class="hud-btn active" data-mode="subtle">SUBTLE</button>
+                    <button class="hud-btn" data-mode="glitch">GLITCH</button>
+                    <button class="hud-btn" data-mode="agent">AGENT</button>
+                    
+                    <button id="glitch-btn" class="hud-btn" style="margin-left:4px;">FORCE</button>
+                    <button id="red-pill-btn" class="hud-btn danger">RED PILL</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quote -->
+        <div id="quote-display" class="quote"></div>
+        
+        <!-- Mini Log -->
+        <div id="event-log" class="log hidden"></div>
+        
+        <div class="glasses-badge">META DISPLAY HUD</div>
+    </div>
+    
+    <script>
+        // ==================== MATRIX RAIN (optimized for small HUD) ====================
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d', { alpha: true });
+        
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initRain();
+        }
+        window.addEventListener('resize', resize);
+        
+        const fontSize = 11;
+        let columns, drops = [], speeds = [];
+        const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789';
+        
+        function initRain() {
+            columns = Math.floor(width / fontSize) + 2;
+            drops = new Array(columns).fill(0).map(() => Math.random() * (height / fontSize));
+            speeds = new Array(columns).fill(0).map(() => 0.9 + Math.random() * 1.4);
+        }
+        
+        let intensity = 0.18;
+        let targetIntensity = 0.18;
+        let currentMode = 'subtle';
+        
+        function drawRain() {
+            const fade = 0.06 + (intensity * 0.09);
+            ctx.fillStyle = `rgba(0,0,0,${fade})`;
+            ctx.fillRect(0, 0, width, height);
+            
+            let color = '#00ff41';
+            if (currentMode === 'agent') color = '#ff4444';
+            else if (currentMode === 'glitch' && intensity > 0.5) color = '#ffff66';
+            
+            ctx.fillStyle = color;
+            ctx.font = `${fontSize}px 'VT323', monospace`;
+            
+            const speedMul = 0.7 + intensity * 1.9;
+            
+            for (let i = 0; i < columns; i++) {
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+                
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(char, x, y);
+                
+                drops[i] += speeds[i] * speedMul;
+                
+                if (drops[i] * fontSize > height && Math.random() > 0.91) {
+                    drops[i] = 0;
+                    speeds[i] = 0.9 + Math.random() * 1.4;
+                }
+            }
+            
+            // Occasional glitch lines (less frequent on small display)
+            if (intensity > 0.6 && Math.random() > 0.94) {
+                ctx.strokeStyle = currentMode === 'agent' ? '#ff4444' : '#00ff41';
+                ctx.lineWidth = 1;
+                const gy = Math.random() * height;
+                ctx.beginPath();
+                ctx.moveTo(0, gy);
+                ctx.lineTo(width * 0.6 + Math.random() * width * 0.4, gy + (Math.random() - 0.5) * 3);
+                ctx.stroke();
+            }
+        }
+        
+        // ==================== AUDIO (same powerful core) ====================
+        let audioCtx, micSource, analyser, lowpass, delayNode, feedbackGain, dryGain, wetGain, masterGain;
+        let droneOsc, droneGain, noiseSource;
+        let audioDataArray;
+        let isAudioStarted = false;
+        let micStream = null;
+        
+        function createNoiseBuffer() {
+            const size = audioCtx.sampleRate * 1.5;
+            const buf = audioCtx.createBuffer(1, size, audioCtx.sampleRate);
+            const data = buf.getChannelData(0);
+            for (let i = 0; i < size; i++) data[i] = Math.random() * 2 - 1;
+            return buf;
+        }
+        
+        async function startAudio() {
+            if (isAudioStarted) return;
+            
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                micStream = await navigator.mediaDevices.getUserMedia({
+                    audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+                });
+                
+                micSource = audioCtx.createMediaStreamSource(micStream);
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 128;
+                audioDataArray = new Uint8Array(analyser.frequencyBinCount);
+                
+                // Processing chain
+                lowpass = audioCtx.createBiquadFilter();
+                lowpass.type = 'lowpass';
+                lowpass.frequency.value = 2200;
+                
+                delayNode = audioCtx.createDelay(0.7);
+                delayNode.delayTime.value = 0.26;
+                
+                feedbackGain = audioCtx.createGain();
+                feedbackGain.gain.value = 0.35;
+                delayNode.connect(feedbackGain);
+                feedbackGain.connect(delayNode);
+                
+                dryGain = audioCtx.createGain();
+                dryGain.gain.value = 0.6;
+                wetGain = audioCtx.createGain();
+                wetGain.gain.value = 0.5;
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0.85;
+                
+                micSource.connect(analyser);
+                micSource.connect(dryGain);
+                micSource.connect(lowpass);
+                lowpass.connect(delayNode);
+                delayNode.connect(wetGain);
+                
+                dryGain.connect(masterGain);
+                wetGain.connect(masterGain);
+                masterGain.connect(audioCtx.destination);
+                
+                // Generative drone
+                droneOsc = audioCtx.createOscillator();
+                droneOsc.type = 'sine';
+                droneOsc.frequency.value = 56;
+                const dFilter = audioCtx.createBiquadFilter();
+                dFilter.type = 'lowpass';
+                dFilter.frequency.value = 160;
+                droneGain = audioCtx.createGain();
+                droneGain.gain.value = 0.032;
+                
+                const lfo = audioCtx.createOscillator();
+                lfo.type = 'sine';
+                lfo.frequency.value = 0.09;
+                const lfoG = audioCtx.createGain();
+                lfoG.gain.value = 3.8;
+                lfo.connect(lfoG);
+                lfoG.connect(droneOsc.frequency);
+                
+                droneOsc.connect(dFilter);
+                dFilter.connect(droneGain);
+                droneGain.connect(masterGain);
+                droneOsc.start();
+                lfo.start();
+                
+                // Noise layer
+                const nBuf = createNoiseBuffer();
+                noiseSource = audioCtx.createBufferSource();
+                noiseSource.buffer = nBuf;
+                noiseSource.loop = true;
+                const nF = audioCtx.createBiquadFilter();
+                nF.type = 'bandpass';
+                nF.frequency.value = 980;
+                nF.Q.value = 1.6;
+                const nG = audioCtx.createGain();
+                nG.gain.value = 0.007;
+                noiseSource.connect(nF);
+                nF.connect(nG);
+                nG.connect(masterGain);
+                noiseSource.start();
+                
+                isAudioStarted = true;
+                startAnalysis();
+                addLog('Mic + simulation audio active');
+                
+            } catch (e) {
+                console.warn('Mic failed, using generative only');
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                createFallbackAudio();
+                isAudioStarted = true;
+                startAnalysis();
+            }
+        }
+        
+        function createFallbackAudio() {
+            droneOsc = audioCtx.createOscillator();
+            droneOsc.type = 'sine';
+            droneOsc.frequency.value = 54;
+            droneGain = audioCtx.createGain();
+            droneGain.gain.value = 0.038;
+            const f = audioCtx.createBiquadFilter();
+            f.type = 'lowpass';
+            f.frequency.value = 190;
+            droneOsc.connect(f);
+            f.connect(droneGain);
+            droneGain.connect(audioCtx.destination);
+            droneOsc.start();
+        }
+        
+        let lastRms = 0, motionInt = 0;
+        
+        function getAudioInt() {
+            if (!analyser || !audioDataArray) return 0;
+            analyser.getByteTimeDomainData(audioDataArray);
+            let sum = 0;
+            for (let i = 0; i < audioDataArray.length; i++) {
+                const v = (audioDataArray[i] - 128) / 128;
+                sum += v * v;
+            }
+            const rms = Math.sqrt(sum / audioDataArray.length);
+            lastRms = lastRms * 0.72 + rms * 0.28;
+            return Math.min(1, lastRms * 3.2);
+        }
+        
+        function updateAudio() {
+            if (!isAudioStarted || !audioCtx) return;
+            const comb = Math.min(1, intensity * 0.68 + motionInt * 0.32);
+            
+            let dly = 0.24, fb = 0.32, lp = 2300, dr = 0.03;
+            
+            if (currentMode === 'glitch') {
+                dly = 0.36 + comb * 0.22; fb = 0.45; lp = 1700;
+            } else if (currentMode === 'agent') {
+                dly = 0.16; fb = 0.52; lp = 1350; dr = 0.05;
+            }
+            
+            if (delayNode) delayNode.delayTime.value = dly;
+            if (feedbackGain) feedbackGain.gain.value = fb;
+            if (lowpass) lowpass.frequency.value = lp;
+            if (droneGain) droneGain.gain.value = dr + comb * 0.025;
+            
+            const w = 0.38 + comb * 0.52;
+            if (wetGain) wetGain.gain.value = w;
+            if (dryGain) dryGain.gain.value = 1 - w * 0.65;
+        }
+        
+        // ==================== MOTION ====================
+        function setupMotion() {
+            if (window.DeviceMotionEvent) {
+                let lastMag = 0;
+                window.addEventListener('devicemotion', e => {
+                    const a = e.accelerationIncludingGravity || e.acceleration;
+                    if (!a) return;
+                    const mag = Math.sqrt((a.x||0)**2 + (a.y||0)**2 + (a.z||0)**2);
+                    const delta = Math.abs(mag - lastMag);
+                    lastMag = mag;
+                    
+                    if (delta > 1.3) {
+                        motionInt = Math.min(1, motionInt + 0.16);
+                        if (delta > 4 && Math.random() > 0.55) {
+                            setTimeout(() => triggerGlitch(true), 90);
+                        }
+                    } else {
+                        motionInt = Math.max(0, motionInt * 0.9 - 0.01);
+                    }
+                });
+            } else {
+                // Desktop / limited fallback
+                document.addEventListener('mousemove', () => {
+                    motionInt = Math.min(1, motionInt + 0.05);
+                    setTimeout(() => motionInt = Math.max(0, motionInt - 0.04), 160);
+                });
+            }
+        }
+        
+        // ==================== INTENSITY LOOP ====================
+        function updateIntensity() {
+            const aInt = getAudioInt();
+            targetIntensity = (aInt * 0.7) + (motionInt * 0.3);
+            targetIntensity = Math.max(0.08, Math.min(0.96, targetIntensity));
+            intensity = intensity * 0.76 + targetIntensity * 0.24;
+            
+            const pct = Math.round(intensity * 100);
+            document.getElementById('intensity-fill').style.width = pct + '%';
+            document.getElementById('intensity-value').textContent = pct;
+            
+            const modeEl = document.getElementById('mode-indicator');
+            if (currentMode === 'agent') {
+                modeEl.style.borderColor = '#ff4444';
+                modeEl.style.color = '#ff4444';
+            } else if (currentMode === 'glitch') {
+                modeEl.style.borderColor = '#ffff66';
+                modeEl.style.color = '#ffff66';
+            } else {
+                modeEl.style.borderColor = '#00ff41';
+                modeEl.style.color = '#00ff41';
+            }
+            
+            updateAudio();
+        }
+        
+        let analysisTimer = null;
+        function startAnalysis() {
+            if (analysisTimer) clearInterval(analysisTimer);
+            analysisTimer = setInterval(() => {
+                updateIntensity();
+                if (intensity > 0.52 && Math.random() > 0.96) triggerGlitch(false);
+                if (intensity > 0.8 && Math.random() > 0.87) triggerGlitch(true);
+            }, 130);
+        }
+        
+        // ==================== MODES & QUOTES ====================
+        const quotes = [
+            "There is no spoon.",
+            "The Matrix has you...",
+            "Wake up, Neo.",
+            "What is real?",
+            "Follow the white rabbit.",
+            "Free your mind.",
+            "I know kung fu."
+        ];
+        
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-indicator').textContent = mode.toUpperCase();
+            
+            document.querySelectorAll('.hud-btn[data-mode]').forEach(b => 
+                b.classList.toggle('active', b.dataset.mode === mode)
+            );
+            
+            let txt = 'Subtle code flowing...';
+            if (mode === 'glitch') txt = 'GLITCH PROTOCOL — Reality destabilizing';
+            if (mode === 'agent') txt = 'AGENT DETECTED — High alert';
+            document.getElementById('context-label').textContent = txt;
+            
+            if (isAudioStarted) updateAudio();
+            addLog('Mode: ' + mode.toUpperCase());
+        }
+        
+        let lastQuote = 0;
+        
+        function triggerGlitch(strong = false) {
+            const now = Date.now();
+            if (now - lastQuote < 2100) return;
+            lastQuote = now;
+            
+            const q = quotes[Math.floor(Math.random() * quotes.length)];
+            
+            // Flash
+            const flash = document.createElement('div');
+            flash.style.cssText = `position:absolute;top:0;left:0;width:100%;height:100%;background:${strong ? 'rgba(255,40,40,0.13)' : 'rgba(0,255,65,0.09)'};z-index:35;pointer-events:none;`;
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 140);
+            
+            // Quote popup
+            const qEl = document.getElementById('quote-display');
+            qEl.textContent = q;
+            qEl.style.display = 'block';
+            qEl.style.borderColor = strong ? '#ff4444' : '#00ff41';
+            qEl.classList.add('show');
+            
+            setTimeout(() => {
+                qEl.classList.remove('show');
+                setTimeout(() => { qEl.style.display = 'none'; }, 220);
+            }, strong ? 1650 : 1150);
+            
+            // Audio burst
+            if (audioCtx) {
+                try {
+                    const o = audioCtx.createOscillator();
+                    o.type = strong ? 'sawtooth' : 'sine';
+                    o.frequency.value = strong ? 46 : 88;
+                    const g = audioCtx.createGain();
+                    g.gain.value = strong ? 0.16 : 0.08;
+                    const f = audioCtx.createBiquadFilter();
+                    f.type = 'lowpass';
+                    f.frequency.value = strong ? 380 : 820;
+                    
+                    const t = audioCtx.currentTime;
+                    g.gain.setValueAtTime(g.gain.value, t);
+                    g.gain.linearRampToValueAtTime(0.001, t + (strong ? 0.55 : 0.32));
+                    
+                    o.connect(f);
+                    f.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.start(t);
+                    o.stop(t + 0.8);
+                } catch(e){}
+            }
+            
+            addLog(q.length > 42 ? q.slice(0,40)+'...' : q, true);
+            targetIntensity = Math.min(0.95, targetIntensity + (strong ? 0.32 : 0.17));
+        }
+        
+        function addLog(msg, isGlitch = false) {
+            const log = document.getElementById('event-log');
+            const el = document.createElement('div');
+            el.className = 'event' + (isGlitch ? ' glitch' : '');
+            el.textContent = msg;
+            log.appendChild(el);
+            
+            while (log.children.length > 5) log.removeChild(log.firstChild);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // ==================== START ====================
+        async function enter() {
+            document.getElementById('welcome').classList.add('hidden');
+            document.getElementById('active-hud').classList.remove('hidden');
+            document.getElementById('event-log').classList.remove('hidden');
+            
+            await startAudio();
+            setupMotion();
+            
+            setTimeout(() => addLog('Simulation active on glasses HUD'), 300);
+            
+            // Gentle start quote
+            setTimeout(() => {
+                if (!document.getElementById('welcome').classList.contains('hidden') === false) {
+                    const qEl = document.getElementById('quote-display');
+                    qEl.textContent = 'Wake up, Neo.';
+                    qEl.style.display = 'block';
+                    qEl.classList.add('show');
+                    setTimeout(() => {
+                        qEl.classList.remove('show');
+                        setTimeout(() => qEl.style.display = 'none', 200);
+                    }, 1200);
+                }
+            }, 4200);
+            
+            startRender();
+            
+            // Keyboard for testing
+            document.addEventListener('keydown', e => {
+                if (e.key.toLowerCase() === 'g') triggerGlitch(true);
+                if (e.key.toLowerCase() === 'r') document.getElementById('red-pill-btn').click();
+            });
+        }
+        
+        let rendering = false;
+        function startRender() {
+            if (rendering) return;
+            rendering = true;
+            function loop() {
+                drawRain();
+                requestAnimationFrame(loop);
+            }
+            loop();
+        }
+        
+        function setupListeners() {
+            document.getElementById('enter-btn').onclick = enter;
+            
+            document.querySelectorAll('.hud-btn[data-mode]').forEach(btn => {
+                btn.onclick = () => setMode(btn.dataset.mode);
+            });
+            
+            document.getElementById('glitch-btn').onclick = () => triggerGlitch(true);
+            
+            const redBtn = document.getElementById('red-pill-btn');
+            redBtn.onclick = () => {
+                if (currentMode !== 'agent') {
+                    setMode('agent');
+                    redBtn.textContent = 'BLUE PILL';
+                    addLog('RED PILL TAKEN');
+                } else {
+                    setMode('subtle');
+                    redBtn.textContent = 'RED PILL';
+                }
+            };
+            
+            // Tap canvas for mild glitch
+            canvas.addEventListener('click', () => {
+                if (document.getElementById('welcome').classList.contains('hidden')) {
+                    targetIntensity = Math.min(0.92, targetIntensity + 0.2);
+                    if (Math.random() > 0.5) setTimeout(() => triggerGlitch(false), 60);
+                }
+            });
+            
+            canvas.addEventListener('contextmenu', e => e.preventDefault());
+        }
+        
+        function boot() {
+            resize();
+            initRain();
+            
+            // Gentle background rain on welcome
+            const idle = setInterval(() => {
+                if (!document.getElementById('welcome').classList.contains('hidden')) {
+                    drawRain();
+                } else {
+                    clearInterval(idle);
+                }
+            }, 70);
+            
+            setupListeners();
+            
+            // Subtle pulsing on welcome intensity
+            setInterval(() => {
+                const fill = document.getElementById('intensity-fill');
+                if (fill && !document.getElementById('welcome').classList.contains('hidden')) {
+                    fill.style.width = (14 + Math.random() * 16) + '%';
+                    setTimeout(() => { if (fill) fill.style.width = '18%'; }, 380);
+                }
+            }, 4800);
+            
+            console.log('%c[Matrix HUD] Ready for Meta Ray-Ban Display glasses. Enable Developer Mode + add this URL in Meta AI app.', 'color:#334433');
+        }
+        
+        boot();
+        
+        // Visibility ducking
+        document.addEventListener('visibilitychange', () => {
+            if (masterGain) masterGain.gain.value = document.hidden ? 0.2 : 0.85;
+        });
+    </script>
+</body>
+</html>
