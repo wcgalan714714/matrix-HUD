@@ -32,12 +32,13 @@ function bindRipple(btn) {
         btn.style.setProperty('--x', `${x - rect.left}px`);
         btn.style.setProperty('--y', `${y - rect.top}px`);
     };
+    btn.addEventListener('mousemove', e => setPos(e.clientX, e.clientY));
     btn.addEventListener('pointermove', e => setPos(e.clientX, e.clientY));
     btn.addEventListener('pointerdown', e => setPos(e.clientX, e.clientY));
 }
 
 export function bindLiquidButtons(root = document) {
-    root.querySelectorAll('.liquid-btn').forEach(bindRipple);
+    root.querySelectorAll('.liquid-btn, .liquid-button').forEach(bindRipple);
 }
 
 export function runWakeUpSequence(container, onComplete) {
