@@ -83,14 +83,13 @@
     -webkit-backdrop-filter: blur(10px);
 }
 
-/* ── Liquid Button (exact inspo design) ── */
-.liquid-btn,
-.liquid-button {
+/* ── Liquid Button (exact inspo — do not override core pseudo/bg/border) ── */
+.liquid-button,
+.liquid-btn {
     position: relative;
     padding: 16px 32px;
     font-size: 16px;
     font-weight: 600;
-    font-family: var(--font-sans);
     color: #fff;
     background: transparent;
     border: none;
@@ -101,15 +100,8 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.liquid-btn-label,
-.pill-giant-label {
-    position: relative;
-    z-index: 2;
-    pointer-events: none;
-}
-
-.liquid-btn::before,
-.liquid-button::before {
+.liquid-button::before,
+.liquid-btn::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -122,15 +114,15 @@
     transform: rotate(30deg);
 }
 
-.liquid-btn:hover::before,
-.liquid-button:hover::before {
+.liquid-button:hover::before,
+.liquid-btn:hover::before {
     opacity: 1;
     left: 80%;
     transform: rotate(-30deg);
 }
 
-.liquid-btn::after,
-.liquid-button::after {
+.liquid-button::after,
+.liquid-btn::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -140,20 +132,27 @@
     pointer-events: none;
 }
 
-.liquid-btn:active::after,
-.liquid-button:active::after {
+.liquid-button:active::after,
+.liquid-btn:active::after {
     opacity: 1;
 }
 
-.liquid-btn:disabled,
-.liquid-button:disabled {
+.liquid-btn-label,
+.pill-giant-label {
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Layout modifiers only — never override liquid core above */
+.liquid-button:disabled,
+.liquid-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
 }
 
-/* Size / role modifiers — same liquid core */
-.liquid-btn.icon,
-.liquid-button.icon {
+.liquid-button.icon,
+.liquid-btn.icon {
     padding: 16px;
     min-width: 52px;
     min-height: 52px;
@@ -163,25 +162,16 @@
     font-size: 18px;
 }
 
-.liquid-btn.sm,
-.liquid-button.sm {
+.liquid-button.sm,
+.liquid-btn.sm {
     padding: 12px 24px;
     font-size: 14px;
 }
 
-.liquid-btn.wide,
-.liquid-button.wide {
+.liquid-button.wide,
+.liquid-btn.wide {
     min-width: 200px;
 }
-
-.liquid-btn.red,
-.liquid-button.red { color: #fff; }
-
-.liquid-btn.blue,
-.liquid-button.blue { color: #fff; }
-
-.liquid-btn.amber,
-.liquid-button.amber { color: #fff; }
 
 /* ── PRELOADER (Matrix glitch reveal + terminal boot) ── */
 .preloader-content {
@@ -1054,10 +1044,9 @@ body.mode-blue .scanline {
 .blue-sync-label.stale { color: var(--eva-yellow) !important; }
 .blue-sync-label.error { color: var(--eva-red) !important; }
 
-.blue-refresh-btn {
+.blue-foot-bar .liquid-button,
+.blue-foot-bar .liquid-btn {
     flex-shrink: 0;
-    padding: 12px 22px !important;
-    font-size: 14px !important;
 }
 
 .blue-ticker-strip {

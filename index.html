@@ -59,7 +59,7 @@
         <div class="wake-fullscreen">
             <div id="wake-container" class="wake-container-full"></div>
             <div class="wake-actions-full">
-                <button id="enter-btn" class="liquid-btn wake-enter-btn wake-btn-hidden"><span class="liquid-btn-label">ENTER</span></button>
+                <button id="enter-btn" class="liquid-button liquid-btn wake-enter-btn wake-btn-hidden"><span class="liquid-btn-label">ENTER</span></button>
             </div>
         </div>
     </section>
@@ -68,11 +68,11 @@
     <section id="screen-pill" class="screen" aria-label="Red or Blue Pill">
         <div class="pill-fullscreen">
             <div class="pill-choice-stack">
-                <button id="pill-red" class="pill-giant-btn pill-giant-red liquid-btn red" aria-label="Red Pill">
-                    <span class="pill-giant-label">RED PILL</span>
+                <button id="pill-red" class="pill-giant-btn pill-giant-red liquid-button liquid-btn" aria-label="Red Pill">
+                    <span class="liquid-btn-label pill-giant-label">RED PILL</span>
                 </button>
-                <button id="pill-blue" class="pill-giant-btn pill-giant-blue liquid-btn blue" aria-label="Blue Pill">
-                    <span class="pill-giant-label">BLUE PILL</span>
+                <button id="pill-blue" class="pill-giant-btn pill-giant-blue liquid-button liquid-btn" aria-label="Blue Pill">
+                    <span class="liquid-btn-label pill-giant-label">BLUE PILL</span>
                 </button>
             </div>
         </div>
@@ -116,7 +116,7 @@
                     <div class="hud-header-actions">
                         <div id="status-line" class="status-line">STANDBY</div>
                         <div id="token-pill-red" class="token-pill amber hidden">NO TOKEN</div>
-                        <button id="settings-btn" class="liquid-btn icon" aria-label="Settings"><span class="liquid-btn-label">⚙</span></button>
+                        <button id="settings-btn" class="liquid-button liquid-btn icon" aria-label="Settings"><span class="liquid-btn-label">⚙</span></button>
                     </div>
                 </header>
 
@@ -164,7 +164,7 @@
                         <span class="sync-dot" id="sync-dot-red" aria-hidden="true"></span>
                         <div data-sync="label" class="last-sync">LAST SYNC: NEVER</div>
                     </div>
-                    <button id="sync-btn" class="liquid-btn"><span class="liquid-btn-label">REFRESH</span></button>
+                    <button id="sync-btn" class="liquid-button liquid-btn"><span class="liquid-btn-label">REFRESH</span></button>
                 </footer>
                 <div id="voice-hints" class="voice-hints">"Show vitals" · "How's my recovery?" · "Sync"</div>
                 <div id="hex-ticker" class="hex-ticker" style="margin-top:6px;"></div>
@@ -188,7 +188,7 @@
 
             <header class="blue-top-bar">
                 <div class="blue-mode-title">BLUE PILL</div>
-                <button id="settings-btn-blue" class="liquid-btn icon blue" aria-label="Settings">
+                <button id="settings-btn-blue" class="liquid-button liquid-btn icon" aria-label="Settings">
                     <span class="liquid-btn-label">⚙</span>
                 </button>
             </header>
@@ -230,7 +230,7 @@
                     <span class="sync-dot blue" id="sync-dot-blue" aria-hidden="true"></span>
                     <div data-sync="label" class="blue-sync-label">SYNC: NEVER</div>
                 </div>
-                <button id="sync-btn-blue" class="liquid-btn blue blue-refresh-btn">
+                <button id="sync-btn-blue" class="liquid-button liquid-btn sm">
                     <span class="liquid-btn-label">REFRESH</span>
                 </button>
             </footer>
@@ -267,8 +267,8 @@
             <p class="settings-note">Vitals: Readiness · Sleep · HRV · Resting HR · Activity</p>
 
             <div class="settings-actions">
-                <button id="settings-close" class="liquid-btn sm amber"><span class="liquid-btn-label">BACK</span></button>
-                <button id="settings-save" class="liquid-btn sm"><span class="liquid-btn-label">SAVE &amp; SYNC</span></button>
+                <button id="settings-close" class="liquid-button liquid-btn sm"><span class="liquid-btn-label">BACK</span></button>
+                <button id="settings-save" class="liquid-button liquid-btn sm"><span class="liquid-btn-label">SAVE &amp; SYNC</span></button>
             </div>
         </div>
     </section>

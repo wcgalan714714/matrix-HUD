@@ -27,10 +27,10 @@ const WAKE_LINES = [
 function bindRipple(btn) {
     if (btn.dataset.liquidBound) return;
     btn.dataset.liquidBound = '1';
-    const setPos = (x, y) => {
+    const setPos = (clientX, clientY) => {
         const rect = btn.getBoundingClientRect();
-        btn.style.setProperty('--x', `${x - rect.left}px`);
-        btn.style.setProperty('--y', `${y - rect.top}px`);
+        btn.style.setProperty('--x', `${clientX - rect.left}px`);
+        btn.style.setProperty('--y', `${clientY - rect.top}px`);
     };
     btn.addEventListener('mousemove', e => setPos(e.clientX, e.clientY));
     btn.addEventListener('pointermove', e => setPos(e.clientX, e.clientY));
