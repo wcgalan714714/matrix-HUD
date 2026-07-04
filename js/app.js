@@ -13,6 +13,7 @@ import {
     transitionToScreen, playCascade, playBlockReveal,
     playBinaryDissolve, playFileParsing, playBlinds,
 } from './transitions.js';
+import { duckAmbience, restoreAmbience } from './ambience.js';
 
 const AUTO_SYNC_MS = 30 * 60 * 1000;
 const STALE_MS = 15 * 60 * 1000;
@@ -314,8 +315,13 @@ function setupKeyboard() {
 function toggleFocus() {
     focusMode = !focusMode;
     document.body.classList.toggle('focus-mode', focusMode);
-    if (focusMode) rain?.stop();
-    else if (experienceMode === 'red') rain?.start(0.25);
+    if (focusMode) {
+        rain?.stop();
+        duckAmbience();
+    } else {
+        if (experienceMode === 'red') rain?.start(0.25);
+        restoreAmbience();
+    }
 }
 
 function boot() {
@@ -334,8 +340,13 @@ function boot() {
     els.autoToggle.addEventListener('click', () => els.autoToggle.classList.toggle('on'));
 
     document.addEventListener('visibilitychange', () => {
-        if (document.hidden) rain?.stop();
-        else if (experienceMode === 'red' && !focusMode) rain?.start(0.28);
+        if (document.hidden) {
+            rain?.stop();
+            duckAmbience();
+        } else {
+            if (experienceMode === 'red' && !focusMode) rain?.start(0.28);
+            if (!focusMode) restoreAmbience();
+        }
     });
 
     setupVoiceHints();
