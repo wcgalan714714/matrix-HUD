@@ -10,7 +10,8 @@ import {
     startHexTicker, startMarquee, startBlueTicker,
 } from './startup.js';
 import {
-    navigateTo, playBlinds, playFileParsing, showScreenInstant,
+    navigateTo, playBlockReveal, playCascade, playMatrixGlitchReveal,
+    playWhiteRabbit, playBlinds, playFileParsing, showScreenInstant,
 } from './transitions.js';
 import { duckAmbience, restoreAmbience } from './ambience.js';
 
@@ -207,16 +208,24 @@ function setupAutoSync() {
 
 async function runStartupFlow() {
     clearMode();
-    rain.start(0.85);
+    rain.start(0.9);
 
     await runPreloader(pct => {
         $('preloader-fill').style.width = `${pct}%`;
+        $('preloader-pct').textContent = `${String(pct).padStart(3, '0')}%`;
         if (pct > 60) $('preloader-status').textContent = 'DECRYPTING NEURAL PATHWAY...';
         if (pct > 85) $('preloader-status').textContent = 'MATRIX PROTOCOL READY';
-    });
+        if (pct > 95) $('preloader-status').textContent = 'GLITCH REVEAL IMMINENT...';
+    }, $('preloader-terminal'));
 
-    await navigateTo('screen-wake', { effect: 'cascade' });
+    rain?.burst();
+    await playMatrixGlitchReveal();
+
+    showScreenInstant('screen-wake');
+    $('screen-wake')?.classList.add('wake-zoom');
+    setTimeout(() => $('screen-wake')?.classList.remove('wake-zoom'), 700);
     setBodyPhase('phase-wake');
+    rain.setIntensity(0.5);
     bindLiquidButtons();
 
     const enterBtn = $('enter-btn');
@@ -230,7 +239,12 @@ async function runStartupFlow() {
 }
 
 async function enterSimulation() {
-    await navigateTo('screen-pill', { effect: 'sweep' });
+    await playBlockReveal('CHOICE PROTOCOL');
+    await playWhiteRabbit();
+    await playCascade('rise');
+    showScreenInstant('screen-pill');
+    $('screen-pill')?.classList.add('entering');
+    setTimeout(() => $('screen-pill')?.classList.remove('entering'), 520);
     bindLiquidButtons();
 }
 
@@ -248,11 +262,14 @@ async function choosePill(mode) {
         return;
     }
 
+    await playCascade('rise');
+    showScreenInstant('screen-boot');
+    $('screen-boot')?.classList.add('entering');
+    setTimeout(() => $('screen-boot')?.classList.remove('entering'), 520);
     setBodyPhase('phase-boot');
     document.body.classList.add('mode-red');
-    await navigateTo('screen-boot', { effect: 'blinds' });
-    rain.setIntensity(0.6);
-    rain.start(0.6);
+    rain.setIntensity(0.65);
+    rain.start(0.65);
     bindLiquidButtons();
 
     radar = initRadar($('boot-radar'));
@@ -260,8 +277,12 @@ async function choosePill(mode) {
 
     runBootSequence($('boot-terminal'), $('boot-progress-fill'), async () => {
         radar.stop();
+        await playBlockReveal('NEURAL LINK');
+        await playCascade('fall');
         setBodyPhase('phase-hud');
-        await navigateTo('screen-hud-red', { effect: 'cascade-fall' });
+        showScreenInstant('screen-hud-red');
+        $('screen-hud-red')?.classList.add('entering');
+        setTimeout(() => $('screen-hud-red')?.classList.remove('entering'), 520);
         rain.setIntensity(0.3);
         rain.start(0.3);
         startHudDecorations();

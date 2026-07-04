@@ -153,27 +153,85 @@
 .liquid-btn.sm { padding: 8px 18px; font-size: 12px; }
 .liquid-btn.wide { min-width: 200px; }
 
-/* ── PRELOADER ── */
+/* ── PRELOADER (Matrix glitch reveal + terminal boot) ── */
 .preloader-content {
     text-align: center;
     z-index: 5;
+    width: 100%;
+    max-width: 340px;
+}
+
+.preloader-logo {
+    animation: preloader-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes preloader-pulse {
+    0%, 100% { text-shadow: 0 0 12px rgba(0, 255, 65, 0.45); }
+    50% { text-shadow: 0 0 22px rgba(0, 255, 65, 0.7), 0 0 40px rgba(0, 255, 65, 0.2); }
 }
 
 .preloader-bar {
-    width: 180px;
-    height: 3px;
-    background: rgba(0, 255, 65, 0.12);
-    border: 1px solid rgba(0, 255, 65, 0.3);
-    margin: 18px auto 0;
+    width: 200px;
+    height: 4px;
+    background: rgba(0, 255, 65, 0.1);
+    border: 1px solid rgba(0, 255, 65, 0.35);
+    margin: 16px auto 6px;
     overflow: hidden;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
 }
 
 .preloader-fill {
     height: 100%;
     width: 0%;
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green);
-    transition: width 0.15s linear;
+    background: linear-gradient(90deg, var(--green), #7fff9a);
+    box-shadow: 0 0 10px var(--green);
+    transition: width 0.12s linear;
+}
+
+.preloader-pct {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    color: var(--green);
+    letter-spacing: 4px;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+    margin-bottom: 10px;
+}
+
+.preloader-terminal {
+    width: 100%;
+    max-height: 110px;
+    overflow: hidden;
+    text-align: left;
+    padding: 10px 12px;
+    margin: 8px auto 6px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(0, 255, 65, 0.25);
+    border-radius: 4px;
+    box-shadow: inset 0 0 16px rgba(0, 255, 65, 0.04);
+}
+
+.preloader-term-line {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--green);
+    line-height: 1.55;
+    opacity: 0;
+    animation: preloader-line-in 0.25s ease forwards;
+    text-shadow: 0 0 6px rgba(0, 255, 65, 0.25);
+}
+
+.preloader-term-line.amber { color: var(--amber); }
+.preloader-term-line.dim { color: var(--text-muted); }
+
+@keyframes preloader-line-in {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.preloader-status {
+    margin-top: 6px;
+    font-size: 10px !important;
+    letter-spacing: 1.5px;
 }
 
 /* ── WAKE UP terminal ── */

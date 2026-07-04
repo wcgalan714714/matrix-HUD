@@ -56,10 +56,12 @@
     <!-- 0 · PRELOADER (Matrix glitch reveal) -->
     <section id="screen-preloader" class="screen active" aria-label="Loading">
         <div class="preloader-content zoom-enter">
-            <div class="logo logo-xl">SYNTH</div>
+            <div class="logo logo-xl preloader-logo">SYNTH</div>
             <div class="section-tag">NEURAL LINK INITIALIZING</div>
             <div class="preloader-bar"><div id="preloader-fill" class="preloader-fill"></div></div>
-            <div class="wake-line dim" style="margin-top:12px;font-size:11px;" id="preloader-status">LOADING MATRIX PROTOCOL...</div>
+            <div class="preloader-pct" id="preloader-pct">000%</div>
+            <div id="preloader-terminal" class="preloader-terminal" aria-live="polite"></div>
+            <div class="wake-line dim preloader-status" id="preloader-status">LOADING MATRIX PROTOCOL...</div>
         </div>
     </section>
 

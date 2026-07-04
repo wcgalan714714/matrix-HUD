@@ -6,18 +6,18 @@ export function playCascade(mode = 'rise') {
     return new Promise(resolve => {
         const overlay = document.createElement('div');
         overlay.className = 'cascade-overlay';
-        const bars = 10;
+        const bars = 14;
         for (let i = 0; i < bars; i++) {
             const bar = document.createElement('div');
             bar.className = `cascade-bar ${mode}`;
-            bar.style.animationDelay = `${i * 18}ms`;
+            bar.style.animationDelay = `${i * 24}ms`;
             overlay.appendChild(bar);
         }
         document.body.appendChild(overlay);
         setTimeout(() => {
             overlay.remove();
             resolve();
-        }, 320 + bars * 18);
+        }, 420 + bars * 24);
     });
 }
 
@@ -29,18 +29,19 @@ export function playBlinds(direction = 'close') {
     return new Promise(resolve => {
         const overlay = document.createElement('div');
         overlay.className = 'blinds-overlay';
-        const slats = 6;
+        const slats = 8;
         for (let i = 0; i < slats; i++) {
             const slat = document.createElement('div');
             slat.className = `blind-slat ${direction}`;
-            slat.style.animationDelay = `${i * 28}ms`;
+            slat.style.animationDelay = `${i * 36}ms`;
             overlay.appendChild(slat);
         }
         document.body.appendChild(overlay);
-        setTimeout(() => { overlay.remove(); resolve(); }, 280 + slats * 28);
+        setTimeout(() => { overlay.remove(); resolve(); }, 340 + slats * 36);
     });
 }
 
+/** Evangelion block-reveal with flash text (vault) */
 export function playBlockReveal(text = 'SYSTEM START') {
     return new Promise(resolve => {
         const el = document.createElement('div');
@@ -48,34 +49,59 @@ export function playBlockReveal(text = 'SYSTEM START') {
         el.innerHTML = `<div class="block wipe"></div><div class="flash-text">${text}</div>`;
         document.body.appendChild(el);
         requestAnimationFrame(() => el.querySelector('.flash-text')?.classList.add('show'));
-        setTimeout(() => { el.remove(); resolve(); }, 520);
+        setTimeout(() => { el.remove(); resolve(); }, 620);
     });
 }
 
+/** Matrix binary dissolve (vault) */
 export function playBinaryDissolve() {
     return new Promise(resolve => {
         const overlay = document.createElement('div');
         overlay.className = 'binary-overlay';
-        for (let row = 0; row < 12; row++) {
+        for (let row = 0; row < 16; row++) {
             const stream = document.createElement('div');
             stream.className = 'binary-stream';
-            stream.style.top = `${row * 8}%`;
-            stream.style.animationDelay = `${row * 22}ms`;
-            stream.textContent = Array.from({ length: 60 }, () => Math.random() > 0.5 ? '1' : '0').join('');
+            stream.style.top = `${row * 6}%`;
+            stream.style.animationDelay = `${row * 26}ms`;
+            stream.textContent = Array.from({ length: 72 }, () => Math.random() > 0.5 ? '1' : '0').join('');
             overlay.appendChild(stream);
         }
         document.body.appendChild(overlay);
         requestAnimationFrame(() => overlay.classList.add('active'));
-        setTimeout(() => { overlay.remove(); resolve(); }, 520);
+        setTimeout(() => { overlay.remove(); resolve(); }, 640);
     });
 }
 
+/** CRT power sweep — Cyberpunk / Matrix monitor boot (vault) */
 export function playCrtSweep() {
     return new Promise(resolve => {
         const el = document.createElement('div');
         el.className = 'crt-sweep sweep';
         document.body.appendChild(el);
-        setTimeout(() => { el.remove(); resolve(); }, 480);
+        setTimeout(() => { el.remove(); resolve(); }, 560);
+    });
+}
+
+/** Matrix glitch RGB flash on preloader exit (vault) */
+export function playGlitchFlash() {
+    return new Promise(resolve => {
+        const el = document.createElement('div');
+        el.className = 'glitch-flash';
+        el.innerHTML = '<div class="glitch-r"></div><div class="glitch-g"></div><div class="glitch-b"></div>';
+        document.body.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('active'));
+        setTimeout(() => { el.remove(); resolve(); }, 420);
+    });
+}
+
+/** Matrix "Follow the White Rabbit" nav transition (vault) */
+export function playWhiteRabbit() {
+    return new Promise(resolve => {
+        const el = document.createElement('div');
+        el.className = 'rabbit-trail run';
+        el.innerHTML = '<div class="trail-line"></div><div class="rabbit-icon">🐇</div>';
+        document.body.appendChild(el);
+        setTimeout(() => { el.remove(); resolve(); }, 880);
     });
 }
 
@@ -86,22 +112,27 @@ export function playFileParsing() {
         el.innerHTML = '<span>▸ FILE PARSING...</span>';
         document.body.appendChild(el);
         requestAnimationFrame(() => el.classList.add('show'));
-        setTimeout(() => { el.remove(); resolve(); }, 560);
+        setTimeout(() => { el.remove(); resolve(); }, 720);
     });
+}
+
+/** Matrix glitch reveal exit — CRT jitter + RGB flash + cascade (vault preloader) */
+export async function playMatrixGlitchReveal() {
+    document.querySelector('#screen-preloader .preloader-content')?.classList.add('crt-glitch');
+    await wait(180);
+    await playGlitchFlash();
+    await playCascade('rise');
+    await playCrtSweep();
 }
 
 export function showScreenInstant(screenId) {
     document.querySelectorAll('.screen').forEach(s => {
-        s.classList.remove('active', 'entering', 'blue-enter');
+        s.classList.remove('active', 'entering', 'blue-enter', 'wake-zoom');
     });
     const screen = document.getElementById(screenId);
     if (screen) screen.classList.add('active');
 }
 
-/**
- * Navigate with a single minimal vault-inspired effect.
- * effect: cascade | cascade-fall | blinds | block | binary | sweep | none
- */
 export async function navigateTo(screenId, { effect = 'cascade', enterClass = 'entering' } = {}) {
     if (effect === 'cascade') await playCascade('rise');
     else if (effect === 'cascade-fall') await playCascade('fall');
@@ -114,7 +145,7 @@ export async function navigateTo(screenId, { effect = 'cascade', enterClass = 'e
     const screen = document.getElementById(screenId);
     if (screen && enterClass) {
         screen.classList.add(enterClass);
-        setTimeout(() => screen.classList.remove(enterClass), 450);
+        setTimeout(() => screen.classList.remove(enterClass), 520);
     }
 
     if (effect === 'blinds') await playBlinds('open');

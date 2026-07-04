@@ -1,7 +1,20 @@
 const BOOT_LINES = [
+    { text: '> WAKE UP, NEO.', cls: '' },
+    { text: '> INITIALIZING CORE...', cls: '' },
     { text: '> MAGI SYSTEM READY', cls: 'amber' },
     { text: '> SYNTH NEURAL LINK ONLINE', cls: '' },
     { text: '> OURA CHANNEL: STANDBY', cls: 'dim' },
+    { text: '> GLANCEABILITY PROTOCOL ACTIVE', cls: 'dim' },
+    { text: '> FOLLOW THE WHITE RABBIT...', cls: 'dim' },
+];
+
+const PRELOADER_LINES = [
+    { at: 8,  text: '> BOOTSTRAP MATRIX KERNEL...', cls: '' },
+    { at: 22, text: '> INITIALIZING CORE...', cls: '' },
+    { at: 38, text: '> DECRYPTING NEURAL PATHWAY...', cls: 'amber' },
+    { at: 55, text: '> MAGI SYSTEM READY', cls: 'amber' },
+    { at: 72, text: '> SYNTH LINK STANDBY', cls: '' },
+    { at: 88, text: '> MATRIX PROTOCOL SYNC...', cls: 'dim' },
 ];
 
 const WAKE_LINES = [
@@ -69,26 +82,42 @@ export function startBlueTicker(el) {
     el.innerHTML = `<span class="hex-ticker-inner blue-ticker-inner">${text}${text}</span>`;
 }
 
-export function runPreloader(onProgress) {
+export function runPreloader(onProgress, terminalEl) {
+    const emitted = new Set();
+
     return new Promise(resolve => {
         let pct = 0;
         const interval = setInterval(() => {
-            pct += 4 + Math.random() * 8;
+            pct += 3 + Math.random() * 7;
             if (pct >= 100) {
                 pct = 100;
                 clearInterval(interval);
                 onProgress?.(100);
-                setTimeout(resolve, 400);
+                setTimeout(resolve, 500);
             } else {
-                onProgress?.(Math.round(pct));
+                const rounded = Math.round(pct);
+                onProgress?.(rounded);
+
+                if (terminalEl) {
+                    PRELOADER_LINES.forEach(spec => {
+                        if (rounded >= spec.at && !emitted.has(spec.at)) {
+                            emitted.add(spec.at);
+                            const line = document.createElement('div');
+                            line.className = 'preloader-term-line' + (spec.cls ? ` ${spec.cls}` : '');
+                            line.textContent = spec.text;
+                            terminalEl.appendChild(line);
+                            terminalEl.scrollTop = terminalEl.scrollHeight;
+                        }
+                    });
+                }
             }
-        }, 120);
+        }, 100);
     });
 }
 
 export function runBootSequence(container, progressEl, onComplete) {
     container.innerHTML = '';
-    const GAP = 110;
+    const GAP = 280;
 
     BOOT_LINES.forEach((spec, i) => {
         setTimeout(() => {
@@ -106,8 +135,8 @@ export function runBootSequence(container, progressEl, onComplete) {
         done.textContent = '> NEURAL LINK ESTABLISHED';
         container.appendChild(done);
         if (progressEl) progressEl.style.width = '100%';
-        setTimeout(onComplete, 400);
-    }, BOOT_LINES.length * GAP + 120);
+        setTimeout(onComplete, 600);
+    }, BOOT_LINES.length * GAP + 180);
 }
 
 export function startHexTicker(el) {
