@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+    (function () {
+        var TRACKS = [
+            'audio/matrix-main-theme-web.mp3',
+            'audio/matrix-cityscape-web.mp3',
+            'audio/matrix-rest-in-matrix-web.mp3'
+        ];
+        var last = sessionStorage.getItem('synth_last_track');
+        var pool = last ? TRACKS.filter(function (t) { return t !== last; }) : TRACKS;
+        if (!pool.length) pool = TRACKS;
+        var track = pool[Math.floor(Math.random() * pool.length)];
+        sessionStorage.setItem('synth_last_track', track);
+        var a = new Audio(track);
+        a.volume = 0.38;
+        a.preload = 'auto';
+        a.loop = false;
+        window.__synthAmbience = { audio: a, track: track };
+        var play = function () { a.play().catch(function () {}); };
+        play();
+        a.addEventListener('loadedmetadata', play, { once: true });
+        a.addEventListener('canplay', play, { once: true });
+        document.addEventListener('pointerdown', play, { once: true, passive: true });
+        document.addEventListener('touchstart', play, { once: true, passive: true });
+        document.addEventListener('keydown', play, { once: true });
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="SYNTH — Neural companion HUD for Meta Ray-Ban Display glasses">

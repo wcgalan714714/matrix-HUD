@@ -1,58 +1,94 @@
 const TRACKS = [
     'audio/matrix-main-theme-web.mp3',
     'audio/matrix-cityscape-web.mp3',
+    'audio/matrix-rest-in-matrix-web.mp3',
 ];
 
 const AMBIENT_VOLUME = 0.38;
 const DUCKED_VOLUME = 0.14;
+const LAST_TRACK_KEY = 'synth_last_track';
 
 let audio = null;
 let currentTrack = null;
 let gestureBound = false;
+let bootstrapped = false;
 
-function pickTrack() {
-    return TRACKS[Math.floor(Math.random() * TRACKS.length)];
+function pickTrack(exclude = null) {
+    let pool = exclude ? TRACKS.filter(t => t !== exclude) : TRACKS.slice();
+    if (pool.length === 0) pool = TRACKS.slice();
+    return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function bindGestureFallback() {
     if (gestureBound) return;
     gestureBound = true;
     const resume = () => {
-        if (audio && audio.paused) audio.play().catch(() => {});
+        if (audio?.paused) aggressivePlay(audio);
     };
-    document.addEventListener('click', resume, { once: true, passive: true });
-    document.addEventListener('keydown', resume, { once: true });
-    document.addEventListener('touchstart', resume, { once: true, passive: true });
+    document.addEventListener('pointerdown', resume, { passive: true });
+    document.addEventListener('keydown', resume);
+    document.addEventListener('touchstart', resume, { passive: true });
 }
 
-function attemptPlay() {
-    if (!audio) return;
-    audio.play().catch(() => bindGestureFallback());
+function aggressivePlay(target) {
+    if (!target) return;
+    const tryPlay = () => target.play().catch(() => bindGestureFallback());
+    tryPlay();
+    ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough'].forEach(ev => {
+        target.addEventListener(ev, tryPlay, { once: true });
+    });
+}
+
+function loadTrack(track) {
+    if (audio) {
+        audio.pause();
+        audio.removeEventListener('ended', onTrackEnded);
+    }
+
+    currentTrack = track;
+    sessionStorage.setItem(LAST_TRACK_KEY, track);
+
+    audio = new Audio(track);
+    audio.volume = AMBIENT_VOLUME;
+    audio.preload = 'auto';
+    audio.addEventListener('ended', onTrackEnded);
+    audio.load();
+    aggressivePlay(audio);
+}
+
+function onTrackEnded() {
+    const next = pickTrack(currentTrack);
+    loadTrack(next);
 }
 
 export function startAmbience() {
-    if (audio) return;
+    if (bootstrapped) return;
+    bootstrapped = true;
 
-    currentTrack = pickTrack();
-    audio = new Audio(currentTrack);
-    audio.loop = true;
-    audio.volume = AMBIENT_VOLUME;
-    audio.preload = 'auto';
+    const existing = window.__synthAmbience;
+    if (existing?.audio) {
+        audio = existing.audio;
+        currentTrack = existing.track;
+        audio.removeEventListener('ended', onTrackEnded);
+        audio.addEventListener('ended', onTrackEnded);
+        audio.loop = false;
+        if (audio.paused) aggressivePlay(audio);
+        return;
+    }
 
-    // Start playback immediately; retry as buffer fills
-    attemptPlay();
-    audio.addEventListener('loadeddata', attemptPlay, { once: true });
-    audio.addEventListener('canplay', attemptPlay, { once: true });
-    audio.load();
+    const last = sessionStorage.getItem(LAST_TRACK_KEY);
+    loadTrack(pickTrack(last));
 }
 
 export function stopAmbience() {
     if (!audio) return;
     audio.pause();
+    audio.removeEventListener('ended', onTrackEnded);
     audio.removeAttribute('src');
     audio.load();
     audio = null;
     currentTrack = null;
+    bootstrapped = false;
 }
 
 export function duckAmbience() {
