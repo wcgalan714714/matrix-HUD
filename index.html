@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SYNTH • HUD</title>
+    <title>SYNTH • NEURAL LINK</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&amp;family=Inter:wght@400;500&amp;display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&amp;display=swap');
 
         :root {
             --green: #00FF41;
             --amber: #FFB800;
-            --alert: #FF3B5C;
             --bg: #0A0F0A;
             --panel: rgba(10, 20, 12, 0.88);
-            --text: #FFFFFF;
-            --text-muted: #A0B0A0;
         }
 
         * {
@@ -25,282 +22,120 @@
 
         body {
             background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', system-ui, sans-serif;
+            color: #fff;
+            font-family: 'VT323', 'Courier New', monospace;
             overflow: hidden;
             height: 100vh;
             width: 100vw;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
 
-        .hud-container {
+        #hud {
             width: 92%;
-            max-width: 520px;
+            max-width: 480px;
             padding: 16px;
-            position: relative;
-            z-index: 10;
         }
 
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 0 4px;
-        }
-
-        .logo {
-            font-family: 'VT323', monospace;
-            font-size: 28px;
+            font-size: 22px;
             color: var(--green);
-            letter-spacing: 4px;
+            letter-spacing: 3px;
+            margin-bottom: 14px;
+            text-align: center;
         }
 
-        .status {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-family: 'VT323', monospace;
-        }
-
-        .vitals-grid {
+        .vitals {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
 
-        .vital-card {
+        .metric {
             background: var(--panel);
             border: 1px solid rgba(0, 255, 65, 0.25);
             border-radius: 10px;
             padding: 14px 16px;
             backdrop-filter: blur(12px);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .vital-card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 0 0 1px rgba(0, 255, 65, 0.15);
-        }
-
-        .vital-label {
+        .metric-label {
             font-size: 11px;
-            color: var(--text-muted);
+            color: #A0B0A0;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 4px;
         }
 
-        .vital-value {
-            font-family: 'VT323', monospace;
+        .metric-value {
             font-size: 32px;
             color: var(--green);
             line-height: 1;
         }
 
-        .vital-unit {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-left: 4px;
-        }
-
-        .vital-meta {
-            font-size: 10px;
-            color: var(--amber);
-            margin-top: 4px;
-        }
-
         .footer {
             margin-top: 16px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 4px;
+            justify-content: center;
         }
 
-        .sync-btn {
-            font-family: 'VT323', monospace;
+        button {
             background: transparent;
-            color: var(--green);
-            border: 1px solid var(--green);
-            padding: 8px 22px;
-            font-size: 14px;
-            letter-spacing: 2px;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 8px 20px;
             border-radius: 9999px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 14px;
+            letter-spacing: 2px;
         }
 
-        .sync-btn:active {
+        button:active {
             background: rgba(0, 255, 65, 0.1);
-            transform: scale(0.985);
-        }
-
-        .last-sync {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-family: 'VT323', monospace;
-        }
-
-        .scanline {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                to bottom,
-                transparent 0px,
-                transparent 3px,
-                rgba(0, 255, 65, 0.035) 3px,
-                rgba(0, 255, 65, 0.035) 4px
-            );
-            pointer-events: none;
-            z-index: 5;
-            animation: scan 4s linear infinite;
-        }
-
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-
-        .glitch {
-            animation: glitch-text 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <div class="hud-container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo">SYNTH</div>
-            <div class="status" id="connection-status">CONNECTED • OUR A 5</div>
-        </div>
-
-        <!-- Vitals Grid -->
-        <div class="vitals-grid">
-            <!-- Resting HR -->
-            <div class="vital-card">
-                <div class="vital-label">RESTING HR</div>
-                <div>
-                    <span class="vital-value" id="hr-value">62</span>
-                    <span class="vital-unit">bpm</span>
-                </div>
-                <div class="vital-meta">↑ 3 from yesterday</div>
+    <div id="hud">
+        <div class="header">SYNTH • NEURAL LINK</div>
+        
+        <div class="vitals">
+            <div class="metric">
+                <div class="metric-label">READINESS</div>
+                <div class="metric-value" id="readiness">87</div>
             </div>
-
-            <!-- HRV -->
-            <div class="vital-card">
-                <div class="vital-label">HRV</div>
-                <div>
-                    <span class="vital-value" id="hrv-value">68</span>
-                    <span class="vital-unit">ms</span>
-                </div>
-                <div class="vital-meta">Excellent recovery</div>
+            <div class="metric">
+                <div class="metric-label">SLEEP</div>
+                <div class="metric-value" id="sleep">82</div>
             </div>
-
-            <!-- Readiness -->
-            <div class="vital-card">
-                <div class="vital-label">READINESS</div>
-                <div>
-                    <span class="vital-value" id="readiness-value">87</span>
-                </div>
-                <div class="vital-meta">Optimal</div>
+            <div class="metric">
+                <div class="metric-label">HRV</div>
+                <div class="metric-value" id="hrv">68</div>
             </div>
-
-            <!-- Activity -->
-            <div class="vital-card">
-                <div class="vital-label">ACTIVITY</div>
-                <div>
-                    <span class="vital-value" id="activity-value">92</span>
-                </div>
-                <div class="vital-meta">Strong day</div>
+            <div class="metric">
+                <div class="metric-label">RESTING HR</div>
+                <div class="metric-value" id="resting-hr">62</div>
             </div>
         </div>
-
-        <!-- Footer -->
+        
         <div class="footer">
-            <div class="last-sync" id="last-sync">LAST SYNC: JUST NOW</div>
-            <button class="sync-btn" id="refresh-btn">SYNC</button>
+            <button onclick="refreshData()">REFRESH</button>
         </div>
     </div>
 
-    <!-- Subtle scanline overlay -->
-    <div class="scanline"></div>
-
     <script>
-        // SYNTH - Glanceable Oura HUD
-        // Placeholder data + manual refresh (Oura API integration coming next)
-
-        const refreshBtn = document.getElementById('refresh-btn');
-        const lastSyncEl = document.getElementById('last-sync');
-
-        function updateTimestamp() {
-            const now = new Date();
-            lastSyncEl.textContent = `LAST SYNC: ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        function refreshData() {
+            document.getElementById('readiness').textContent = Math.floor(75 + Math.random() * 25);
+            document.getElementById('sleep').textContent = Math.floor(70 + Math.random() * 30);
+            document.getElementById('hrv').textContent = Math.floor(50 + Math.random() * 40);
+            document.getElementById('resting-hr').textContent = Math.floor(55 + Math.random() * 15);
+            console.log("SYNTH refreshed");
         }
 
-        function simulateDataUpdate() {
-            // Simulate slight realistic variation
-            const hr = document.getElementById('hr-value');
-            const hrv = document.getElementById('hrv-value');
-            const readiness = document.getElementById('readiness-value');
-            const activity = document.getElementById('activity-value');
-
-            hr.textContent = Math.floor(Math.random() * 8) + 58;
-            hrv.textContent = Math.floor(Math.random() * 12) + 62;
-            readiness.textContent = Math.floor(Math.random() * 10) + 82;
-            activity.textContent = Math.floor(Math.random() * 8) + 88;
-
-            // Subtle glow flash on update
-            [hr, hrv, readiness, activity].forEach(el => {
-                el.style.transition = 'none';
-                el.style.color = '#FFB800';
-                setTimeout(() => {
-                    el.style.transition = 'color 0.6s ease';
-                    el.style.color = '#00FF41';
-                }, 80);
-            });
-        }
-
-        refreshBtn.addEventListener('click', () => {
-            refreshBtn.disabled = true;
-            refreshBtn.textContent = 'SYNCING...';
-
-            setTimeout(() => {
-                simulateDataUpdate();
-                updateTimestamp();
-
-                refreshBtn.textContent = 'SYNC';
-                refreshBtn.disabled = false;
-            }, 650);
-        });
-
-        // Initial state
-        updateTimestamp();
-
-        // Keyboard support (useful during development)
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'r' || e.key === 'R') {
-                refreshBtn.click();
-            }
-        });
-
-        // Make it feel alive on load
-        setTimeout(() => {
-            const cards = document.querySelectorAll('.vital-card');
-            cards.forEach((card, i) => {
-                setTimeout(() => {
-                    card.style.boxShadow = '0 0 0 1px rgba(0, 255, 65, 0.15)';
-                    setTimeout(() => {
-                        card.style.boxShadow = 'none';
-                    }, 1200);
-                }, i * 120);
-            });
-        }, 800);
+        // Auto refresh every 30 seconds
+        setInterval(refreshData, 30000);
     </script>
 </body>
 </html>
