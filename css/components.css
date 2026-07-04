@@ -44,17 +44,22 @@
     position: relative;
     padding: 12px 28px;
     font-size: 14px;
-    font-family: var(--font-mono);
-    color: var(--green);
+    font-family: 'VT323', monospace;
+    color: #00ff41;
     background: transparent;
-    border: 2px solid var(--green);
+    border: 2px solid #00ff41;
     border-radius: 9999px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.2s ease;
     text-transform: uppercase;
     letter-spacing: 2px;
-    box-shadow: 0 0 12px rgba(0, 255, 65, 0.15);
+}
+
+.liquid-btn-label {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
 }
 
 .liquid-btn::before {
@@ -64,7 +69,7 @@
     left: -50%;
     width: 40%;
     height: 200%;
-    background: radial-gradient(circle, rgba(0, 255, 65, 0.45) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(0, 255, 65, 0.4) 0%, transparent 70%);
     opacity: 0;
     transition: all 0.4s ease;
     transform: rotate(30deg);
@@ -81,7 +86,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0, 255, 65, 0.35) 0%, transparent 60%);
+    background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0, 255, 65, 0.3) 0%, transparent 60%);
     opacity: 0;
     transition: opacity 0.3s;
     pointer-events: none;
@@ -189,23 +194,84 @@
     font-family: var(--font-mono);
     font-size: 13px;
     color: var(--text-muted);
-    margin-bottom: 24px;
+    margin-bottom: 18px;
     line-height: 1.5;
     font-style: italic;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.pill-row {
+.pill-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    text-align: left;
+}
+
+@media (max-width: 520px) {
+    .pill-cards { grid-template-columns: 1fr; }
+}
+
+.pill-choice-card {
+    padding: 16px 14px 14px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    align-items: center;
+    gap: 10px;
+    min-height: 220px;
+}
+
+.pill-choice-card.red-card {
+    border-color: rgba(255, 59, 92, 0.45);
+    box-shadow: var(--neo-shadow), 0 0 20px rgba(255, 59, 92, 0.08);
+}
+
+.pill-choice-card.blue-card {
+    border-color: rgba(77, 163, 255, 0.4);
+    box-shadow: var(--neo-shadow), 0 0 20px rgba(77, 163, 255, 0.08);
+}
+
+.pill-card-tag {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    letter-spacing: 3px;
+}
+
+.red-card .pill-card-tag { color: var(--alert); }
+.blue-card .pill-card-tag { color: var(--blue-pill); }
+
+.pill-card-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.pill-features {
+    list-style: none;
+    flex: 1;
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.55;
+}
+
+.pill-features li::before {
+    content: '▸ ';
+    color: var(--green);
+}
+
+.blue-card .pill-features li::before { color: var(--blue-pill); }
+
+.pill-choice-card .liquid-btn {
+    width: 100%;
+    margin-top: auto;
 }
 
 .pill-hint {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--text-muted);
-    margin-top: 20px;
+    margin-top: 14px;
     letter-spacing: 1px;
+    opacity: 0.7;
 }
 
 /* ── BOOT ── */
@@ -502,15 +568,90 @@
     justify-content: flex-end;
 }
 
-/* Blue pill overrides */
-body.blue-pill .glass-panel {
+/* ── BLUE PILL minimal HUD ── */
+.blue-hud-panel {
+    background: rgba(18, 20, 24, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 20px 18px;
     box-shadow: none;
     backdrop-filter: none;
 }
 
-body.blue-pill .voice-hints,
-body.blue-pill .warning-banner,
-body.blue-pill .hex-ticker { display: none; }
+.blue-hud-title {
+    font-family: var(--font-sans);
+    font-size: 20px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.blue-hud-sub {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    color: #8899aa;
+    margin-bottom: 16px;
+}
+
+.blue-vitals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.blue-vital-card {
+    padding: 14px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+}
+
+.blue-vital-card .vital-label {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    color: #8899aa;
+    letter-spacing: 1px;
+}
+
+.blue-vital-card .vital-value {
+    font-family: var(--font-sans);
+    font-size: 32px;
+    font-weight: 500;
+    color: #ffffff;
+    text-shadow: none;
+}
+
+.blue-vital-card .vital-meta {
+    font-family: var(--font-sans);
+    color: #6a7a8a;
+    font-size: 10px;
+}
+
+.blue-hud-footer {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.blue-hud-footer .last-sync {
+    font-family: var(--font-sans);
+    color: #6a7a8a;
+}
+
+body.red-pill .blue-only,
+body:not(.blue-pill):not(.red-pill) .blue-only { display: none !important; }
+
+body.blue-pill .red-only { display: none !important; }
+
+body.blue-pill {
+    background: #0e1014;
+    cursor: default;
+}
+
+body.blue-pill .glass-panel.red-hud-panel { display: none; }
 
 body.focus-mode #matrix-canvas,
 body.focus-mode .hex-grid,

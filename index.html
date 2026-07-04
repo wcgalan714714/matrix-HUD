@@ -74,7 +74,7 @@
                 <span class="frame-bracket br"></span>
                 <div id="wake-container"></div>
                 <div class="wake-actions">
-                    <button id="enter-btn" class="liquid-btn wide">ENTER SIMULATION</button>
+                    <button id="enter-btn" class="liquid-btn wide"><span class="liquid-btn-label">ENTER SIMULATION</span></button>
                 </div>
             </div>
         </div>
@@ -86,11 +86,31 @@
             <div class="logo logo-xl">SYNTH</div>
             <div class="section-tag">SEC.01 — CHOICE PROTOCOL</div>
             <p class="pill-quote">"This is your last chance. After this, there is no turning back."</p>
-            <div class="pill-row">
-                <button id="pill-red" class="liquid-btn red wide">RED PILL — FULL NEURAL HUD</button>
-                <button id="pill-blue" class="liquid-btn blue wide">BLUE PILL — MINIMAL VITALS</button>
+            <div class="pill-cards">
+                <div class="glass-panel pill-choice-card red-card">
+                    <div class="pill-card-tag">RED PILL</div>
+                    <p class="pill-card-desc">Full neural interface — the Matrix awaits.</p>
+                    <ul class="pill-features">
+                        <li>Matrix digital rain overlay</li>
+                        <li>NERV boot + radar sequence</li>
+                        <li>Tactical glass HUD + telemetry</li>
+                        <li>Voice hints + warning banners</li>
+                    </ul>
+                    <button id="pill-red" class="liquid-btn red"><span class="liquid-btn-label">TAKE RED PILL</span></button>
+                </div>
+                <div class="glass-panel pill-choice-card blue-card">
+                    <div class="pill-card-tag">BLUE PILL</div>
+                    <p class="pill-card-desc">Minimal static vitals — quick glance only.</p>
+                    <ul class="pill-features">
+                        <li>Clean white-on-dark layout</li>
+                        <li>Four core vitals only</li>
+                        <li>No rain, boot, or effects</li>
+                        <li>Instant access — no transitions</li>
+                    </ul>
+                    <button id="pill-blue" class="liquid-btn blue"><span class="liquid-btn-label">TAKE BLUE PILL</span></button>
+                </div>
             </div>
-            <p class="pill-hint">RED: Matrix rain · Boot sequence · Tactical UI<br>BLUE: Static glance · No effects</p>
+            <p class="pill-hint">Your choice determines the entire experience.</p>
         </div>
     </section>
 
@@ -114,68 +134,100 @@
         </div>
     </section>
 
-    <!-- 4 · MAIN HUD -->
+    <!-- 4 · MAIN HUD (red = tactical, blue = minimal) -->
     <section id="screen-hud" class="screen" aria-label="Vitals HUD">
         <div class="hud-shell">
-            <div id="warning-banner" class="warning-banner hidden" role="alert"></div>
-
-            <div class="glass-panel hud-frame" style="padding:12px 10px 10px;">
-                <span class="frame-bracket tl"></span>
-                <span class="frame-bracket tr"></span>
-                <span class="frame-bracket bl"></span>
-                <span class="frame-bracket br"></span>
-
-                <header class="hud-header">
-                    <div>
-                        <div class="logo">SYNTH</div>
-                        <div class="section-tag">SEC.03 — VITALS</div>
+            <!-- RED PILL: Full tactical neural HUD -->
+            <div class="red-only">
+                <div id="warning-banner" class="warning-banner hidden" role="alert"></div>
+                <div class="glass-panel hud-frame red-hud-panel" style="padding:12px 10px 10px;">
+                    <span class="frame-bracket tl"></span>
+                    <span class="frame-bracket tr"></span>
+                    <span class="frame-bracket bl"></span>
+                    <span class="frame-bracket br"></span>
+                    <header class="hud-header">
+                        <div>
+                            <div class="logo">SYNTH</div>
+                            <div class="section-tag">SEC.03 — NEURAL VITALS</div>
+                        </div>
+                        <div>
+                            <div id="status-line" class="status-line">STANDBY</div>
+                            <button id="settings-btn" class="icon-btn" aria-label="Settings" style="margin-top:5px;float:right;">⚙</button>
+                        </div>
+                    </header>
+                    <div class="vitals-grid">
+                        <div class="glass-panel vital-card hero neo-lift">
+                            <div class="vital-label">Readiness</div>
+                            <div><span data-vital="readiness" class="vital-value">—</span></div>
+                            <div data-meta="readiness" class="vital-meta">—</div>
+                        </div>
+                        <div class="glass-panel vital-card neo-lift">
+                            <div class="vital-label">Sleep</div>
+                            <div><span data-vital="sleep" class="vital-value">—</span></div>
+                            <div data-meta="sleep" class="vital-meta">Last night</div>
+                        </div>
+                        <div class="glass-panel vital-card neo-lift">
+                            <div class="vital-label">HRV</div>
+                            <div><span data-vital="hrv" class="vital-value">—</span><span class="vital-unit">ms</span></div>
+                            <div data-meta="hrv" class="vital-meta">—</div>
+                        </div>
+                        <div class="glass-panel vital-card neo-lift">
+                            <div class="vital-label">Resting HR</div>
+                            <div><span data-vital="hr" class="vital-value">—</span><span class="vital-unit">bpm</span></div>
+                            <div data-meta="hr" class="vital-meta">—</div>
+                        </div>
+                        <div class="glass-panel vital-card neo-lift">
+                            <div class="vital-label">Activity</div>
+                            <div><span data-vital="activity" class="vital-value">—</span></div>
+                            <div data-meta="activity" class="vital-meta">—</div>
+                        </div>
+                        <div class="glass-panel vital-card neo-lift">
+                            <div class="vital-label">Steps</div>
+                            <div><span data-vital="steps" class="vital-value">—</span></div>
+                            <div class="vital-meta">Today</div>
+                        </div>
                     </div>
-                    <div>
-                        <div id="status-line" class="status-line">STANDBY</div>
-                        <button id="settings-btn" class="icon-btn" aria-label="Settings" style="margin-top:5px;float:right;">⚙</button>
-                    </div>
-                </header>
-
-                <div class="vitals-grid">
-                    <div class="glass-panel vital-card hero neo-lift">
-                        <div class="vital-label">Readiness</div>
-                        <div><span id="readiness" class="vital-value">—</span></div>
-                        <div id="readiness-meta" class="vital-meta">—</div>
-                    </div>
-                    <div class="glass-panel vital-card neo-lift">
-                        <div class="vital-label">Sleep</div>
-                        <div><span id="sleep" class="vital-value">—</span></div>
-                        <div id="sleep-meta" class="vital-meta">Last night</div>
-                    </div>
-                    <div class="glass-panel vital-card neo-lift">
-                        <div class="vital-label">HRV</div>
-                        <div><span id="hrv" class="vital-value">—</span><span class="vital-unit">ms</span></div>
-                        <div id="hrv-meta" class="vital-meta">—</div>
-                    </div>
-                    <div class="glass-panel vital-card neo-lift">
-                        <div class="vital-label">Resting HR</div>
-                        <div><span id="hr" class="vital-value">—</span><span class="vital-unit">bpm</span></div>
-                        <div id="hr-meta" class="vital-meta">—</div>
-                    </div>
-                    <div class="glass-panel vital-card neo-lift">
-                        <div class="vital-label">Activity</div>
-                        <div><span id="activity" class="vital-value">—</span></div>
-                        <div id="activity-meta" class="vital-meta">—</div>
-                    </div>
-                    <div class="glass-panel vital-card neo-lift">
-                        <div class="vital-label">Steps</div>
-                        <div><span id="steps" class="vital-value">—</span></div>
-                        <div class="vital-meta">Today</div>
-                    </div>
+                    <footer class="hud-footer">
+                        <div data-sync="label" class="last-sync">LAST SYNC: NEVER</div>
+                        <button id="sync-btn" class="liquid-btn"><span class="liquid-btn-label">FORCE SYNC</span></button>
+                    </footer>
+                    <div id="voice-hints" class="voice-hints">"Show vitals" · "How's my recovery?" · "Sync"</div>
+                    <div id="hex-ticker" class="hex-ticker" style="margin-top:6px;"></div>
                 </div>
+            </div>
 
-                <footer class="hud-footer">
-                    <div id="last-sync" class="last-sync">LAST SYNC: NEVER</div>
-                    <button id="sync-btn" class="liquid-btn">FORCE SYNC</button>
-                </footer>
-
-                <div id="voice-hints" class="voice-hints">"Show vitals" · "How's my recovery?" · "Sync"</div>
-                <div id="hex-ticker" class="hex-ticker" style="margin-top:6px;"></div>
+            <!-- BLUE PILL: Minimal static vitals -->
+            <div class="blue-only">
+                <div class="blue-hud-panel">
+                    <div class="blue-hud-title">Vitals</div>
+                    <div class="blue-hud-sub">Quick glance · Blue pill mode · No effects</div>
+                    <div class="blue-vitals-grid">
+                        <div class="blue-vital-card">
+                            <div class="vital-label">Readiness</div>
+                            <div><span data-vital="readiness" class="vital-value">—</span></div>
+                            <div data-meta="readiness" class="vital-meta">—</div>
+                        </div>
+                        <div class="blue-vital-card">
+                            <div class="vital-label">Sleep</div>
+                            <div><span data-vital="sleep" class="vital-value">—</span></div>
+                            <div data-meta="sleep" class="vital-meta">Last night</div>
+                        </div>
+                        <div class="blue-vital-card">
+                            <div class="vital-label">HRV</div>
+                            <div><span data-vital="hrv" class="vital-value">—</span><span class="vital-unit">ms</span></div>
+                            <div data-meta="hrv" class="vital-meta">—</div>
+                        </div>
+                        <div class="blue-vital-card">
+                            <div class="vital-label">Resting HR</div>
+                            <div><span data-vital="hr" class="vital-value">—</span><span class="vital-unit">bpm</span></div>
+                            <div data-meta="hr" class="vital-meta">—</div>
+                        </div>
+                    </div>
+                    <footer class="blue-hud-footer">
+                        <div data-sync="label" class="last-sync">LAST SYNC: NEVER</div>
+                        <button id="sync-btn-blue" class="liquid-btn blue"><span class="liquid-btn-label">SYNC</span></button>
+                    </footer>
+                </div>
             </div>
         </div>
     </section>
@@ -200,8 +252,8 @@
             </div>
 
             <div class="settings-actions">
-                <button id="settings-close" class="liquid-btn sm amber">BACK</button>
-                <button id="settings-save" class="liquid-btn sm">SAVE</button>
+                <button id="settings-close" class="liquid-btn sm amber"><span class="liquid-btn-label">BACK</span></button>
+                <button id="settings-save" class="liquid-btn sm"><span class="liquid-btn-label">SAVE</span></button>
             </div>
         </div>
     </section>

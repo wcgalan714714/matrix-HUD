@@ -263,6 +263,15 @@
     100% { color: var(--green); transform: scale(1); }
 }
 
+body.blue-pill .vital-value.sync-pulse {
+    animation: value-pulse-blue 0.6s ease;
+}
+
+@keyframes value-pulse-blue {
+    0% { color: var(--blue-pill); transform: scale(1.04); }
+    100% { color: #ffffff; transform: scale(1); }
+}
+
 /* ── Marquee ── */
 .marquee-track {
     overflow: hidden;
@@ -320,4 +329,140 @@
 @keyframes zoom-out-reveal {
     0% { transform: scale(1.35); opacity: 0; filter: blur(6px); }
     100% { transform: scale(1); opacity: 1; filter: blur(0); }
+}
+
+/* ── Glitch RGB flash ── */
+.glitch-flash {
+    position: fixed;
+    inset: 0;
+    z-index: 220;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.glitch-flash.active { animation: glitch-flash-pop 0.38s steps(3) forwards; }
+
+.glitch-flash .glitch-r,
+.glitch-flash .glitch-g,
+.glitch-flash .glitch-b {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: screen;
+    opacity: 0;
+}
+
+.glitch-flash.active .glitch-r {
+    background: rgba(255, 0, 60, 0.18);
+    animation: glitch-offset-r 0.12s steps(2) 2;
+}
+
+.glitch-flash.active .glitch-g {
+    background: rgba(0, 255, 65, 0.22);
+    animation: glitch-offset-g 0.1s steps(2) 3;
+}
+
+.glitch-flash.active .glitch-b {
+    background: rgba(0, 120, 255, 0.14);
+    animation: glitch-offset-b 0.14s steps(2) 2;
+}
+
+@keyframes glitch-flash-pop {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes glitch-offset-r {
+    0%, 100% { transform: translate(0); }
+    50% { transform: translate(-4px, 2px); }
+}
+
+@keyframes glitch-offset-g {
+    0%, 100% { transform: translate(0); }
+    50% { transform: translate(3px, -2px); }
+}
+
+@keyframes glitch-offset-b {
+    0%, 100% { transform: translate(0); }
+    50% { transform: translate(2px, 3px); }
+}
+
+/* ── White rabbit trail (Matrix motion) ── */
+.rabbit-trail {
+    position: fixed;
+    inset: 0;
+    z-index: 218;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.rabbit-trail .trail-line {
+    position: absolute;
+    top: 45%;
+    left: -20%;
+    width: 140%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green), rgba(0,255,65,0.2), transparent);
+    box-shadow: 0 0 12px var(--green);
+    transform: rotate(-8deg) scaleX(0);
+    transform-origin: left;
+}
+
+.rabbit-trail.run .trail-line {
+    animation: trail-zigzag 0.85s ease-in-out forwards;
+}
+
+.rabbit-trail .rabbit-icon {
+    position: absolute;
+    font-size: 18px;
+    opacity: 0;
+    filter: drop-shadow(0 0 6px var(--green));
+}
+
+.rabbit-trail.run .rabbit-icon {
+    animation: rabbit-hop 0.85s ease-in-out forwards;
+}
+
+@keyframes trail-zigzag {
+    0% { transform: rotate(-8deg) scaleX(0); opacity: 0; }
+    15% { opacity: 1; }
+    50% { transform: rotate(6deg) scaleX(0.7); }
+    100% { transform: rotate(-4deg) scaleX(1); opacity: 0; }
+}
+
+@keyframes rabbit-hop {
+    0% { left: 5%; top: 48%; opacity: 0; }
+    20% { opacity: 1; }
+    50% { left: 50%; top: 42%; }
+    100% { left: 88%; top: 46%; opacity: 0; }
+}
+
+/* ── CRT power sweep ── */
+.crt-sweep {
+    position: fixed;
+    inset: 0;
+    z-index: 212;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent 48%, rgba(0,255,65,0.35) 49%, rgba(255,255,255,0.5) 50%, rgba(0,255,65,0.35) 51%, transparent 52%);
+    transform: translateY(-100%);
+}
+
+.crt-sweep.sweep {
+    animation: crt-sweep-down 0.6s ease-in forwards;
+}
+
+@keyframes crt-sweep-down {
+    0% { transform: translateY(-100%); opacity: 0.8; }
+    100% { transform: translateY(200%); opacity: 0; }
+}
+
+/* Blue pill: gentle fade only */
+.screen.blue-enter {
+    animation: blue-fade-in 0.35s ease forwards;
+}
+
+@keyframes blue-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

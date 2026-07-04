@@ -16,20 +16,23 @@ const WAKE_LINES = [
     { text: 'Knock, knock, Neo.', dim: true },
 ];
 
+function bindRipple(btn) {
+    if (btn.dataset.liquidBound) return;
+    btn.dataset.liquidBound = '1';
+    const setPos = (x, y) => {
+        const rect = btn.getBoundingClientRect();
+        btn.style.setProperty('--x', `${x - rect.left}px`);
+        btn.style.setProperty('--y', `${y - rect.top}px`);
+    };
+    btn.addEventListener('mousemove', e => setPos(e.clientX, e.clientY));
+    btn.addEventListener('touchstart', e => {
+        const t = e.touches[0];
+        setPos(t.clientX, t.clientY);
+    }, { passive: true });
+}
+
 export function bindLiquidButtons(root = document) {
-    root.querySelectorAll('.liquid-btn').forEach(btn => {
-        btn.addEventListener('mousemove', e => {
-            const rect = btn.getBoundingClientRect();
-            btn.style.setProperty('--x', `${e.clientX - rect.left}px`);
-            btn.style.setProperty('--y', `${e.clientY - rect.top}px`);
-        });
-        btn.addEventListener('touchstart', e => {
-            const touch = e.touches[0];
-            const rect = btn.getBoundingClientRect();
-            btn.style.setProperty('--x', `${touch.clientX - rect.left}px`);
-            btn.style.setProperty('--y', `${touch.clientY - rect.top}px`);
-        }, { passive: true });
-    });
+    root.querySelectorAll('.liquid-btn').forEach(bindRipple);
 }
 
 export function runPreloader(onProgress) {

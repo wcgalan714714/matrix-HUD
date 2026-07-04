@@ -10,8 +10,9 @@ import {
     runBootSequence, startHexTicker, startMarquee,
 } from './startup.js';
 import {
-    transitionToScreen, playCascade, playBlockReveal,
-    playBinaryDissolve, playFileParsing, playBlinds,
+    transitionToScreen, playCascade, playPortalTransition,
+    playRedPillTransition, playRedHudReveal, playFileParsing,
+    playBlinds, showScreenInstant,
 } from './transitions.js';
 import { duckAmbience, restoreAmbience } from './ambience.js';
 
@@ -32,27 +33,38 @@ const els = {};
 function $(id) { return document.getElementById(id); }
 
 function cacheElements() {
-    els.readiness = $('readiness');
-    els.sleep = $('sleep');
-    els.hrv = $('hrv');
-    els.hr = $('hr');
-    els.activity = $('activity');
-    els.steps = $('steps');
-    els.readinessMeta = $('readiness-meta');
-    els.sleepMeta = $('sleep-meta');
-    els.hrvMeta = $('hrv-meta');
-    els.hrMeta = $('hr-meta');
-    els.activityMeta = $('activity-meta');
-    els.lastSync = $('last-sync');
     els.statusLine = $('status-line');
     els.warningBanner = $('warning-banner');
     els.syncBtn = $('sync-btn');
+    els.syncBtnBlue = $('sync-btn-blue');
     els.tokenInput = $('token-input');
     els.autoToggle = $('auto-toggle');
 }
 
 function setBodyPhase(phase) {
-    document.body.className = phase + (experienceMode === 'blue' ? ' blue-pill' : '') + (focusMode ? ' focus-mode' : '');
+    document.body.className = phase;
+    if (experienceMode === 'red') document.body.classList.add('red-pill');
+    if (experienceMode === 'blue') document.body.classList.add('blue-pill');
+    if (focusMode) document.body.classList.add('focus-mode');
+}
+
+function setVital(key, value) {
+    document.querySelectorAll(`[data-vital="${key}"]`).forEach(el => {
+        el.textContent = value;
+    });
+}
+
+function setMeta(key, value) {
+    document.querySelectorAll(`[data-meta="${key}"]`).forEach(el => {
+        el.textContent = value;
+    });
+}
+
+function setSyncLabel(text, className = 'last-sync') {
+    document.querySelectorAll('[data-sync="label"]').forEach(el => {
+        el.textContent = text;
+        el.className = className;
+    });
 }
 
 function contextGreeting() {
@@ -73,6 +85,7 @@ function formatSyncTime(ts) {
 }
 
 function updateStatusLine(vitals, state) {
+    if (!els.statusLine) return;
     const greeting = contextGreeting();
     const token = getToken();
     if (!token) {
@@ -96,6 +109,7 @@ function updateStatusLine(vitals, state) {
 }
 
 function updateWarning(vitals) {
+    if (!els.warningBanner) return;
     if (!vitals || vitals.readiness == null || vitals.readiness >= 55) {
         els.warningBanner.classList.add('hidden');
         return;
@@ -115,22 +129,23 @@ function renderVitals(vitals, state = 'success') {
     currentVitals = vitals;
     const dash = '—';
 
-    els.readiness.textContent = vitals.readiness ?? dash;
-    els.sleep.textContent = vitals.sleep ?? dash;
-    els.hrv.textContent = vitals.hrv ?? dash;
-    els.hr.textContent = vitals.restingHr ?? dash;
-    els.activity.textContent = vitals.activity ?? dash;
-    els.steps.textContent = vitals.steps != null ? vitals.steps.toLocaleString() : dash;
+    setVital('readiness', vitals.readiness ?? dash);
+    setVital('sleep', vitals.sleep ?? dash);
+    setVital('hrv', vitals.hrv ?? dash);
+    setVital('hr', vitals.restingHr ?? dash);
+    setVital('activity', vitals.activity ?? dash);
+    setVital('steps', vitals.steps != null ? vitals.steps.toLocaleString() : dash);
 
-    els.readinessMeta.textContent = vitals.readinessMeta || '—';
-    els.sleepMeta.textContent = vitals.sleepMeta || 'Last night';
-    els.hrvMeta.textContent = vitals.hrvMeta || '—';
-    els.hrMeta.textContent = vitals.hrMeta || '—';
-    els.activityMeta.textContent = vitals.activityMeta || '—';
+    setMeta('readiness', vitals.readinessMeta || '—');
+    setMeta('sleep', vitals.sleepMeta || 'Last night');
+    setMeta('hrv', vitals.hrvMeta || '—');
+    setMeta('hr', vitals.hrMeta || '—');
+    setMeta('activity', vitals.activityMeta || '—');
 
     const age = vitals.syncedAt ? Date.now() - vitals.syncedAt : Infinity;
-    els.lastSync.textContent = state === 'error' ? 'SYNC FAILED' : `LAST SYNC: ${formatSyncTime(vitals.syncedAt)}`;
-    els.lastSync.className = 'last-sync' + (age > STALE_MS ? ' stale' : '') + (state === 'error' ? ' error' : '');
+    const label = state === 'error' ? 'SYNC FAILED' : `LAST SYNC: ${formatSyncTime(vitals.syncedAt)}`;
+    const syncClass = 'last-sync' + (age > STALE_MS ? ' stale' : '') + (state === 'error' ? ' error' : '');
+    setSyncLabel(label, syncClass);
 
     updateStatusLine(vitals, state);
     updateWarning(vitals);
@@ -139,10 +154,11 @@ function renderVitals(vitals, state = 'success') {
 async function syncVitals({ forceDemo = false } = {}) {
     if (syncing) return;
     syncing = true;
-    els.syncBtn.disabled = true;
+    if (els.syncBtn) els.syncBtn.disabled = true;
+    if (els.syncBtnBlue) els.syncBtnBlue.disabled = true;
     updateStatusLine(currentVitals, 'loading');
     animateValues();
-    rain?.burst();
+    if (experienceMode === 'red') rain?.burst();
 
     const token = getToken();
     try {
@@ -157,21 +173,20 @@ async function syncVitals({ forceDemo = false } = {}) {
                 const cached = getCachedVitals();
                 if (cached) {
                     renderVitals(cached, 'error');
-                    els.lastSync.textContent = err.message || 'OURA UNREACHABLE';
-                    els.lastSync.className = 'last-sync error';
+                    setSyncLabel(err.message || 'OURA UNREACHABLE', 'last-sync error');
                     throw err;
                 }
                 vitals = demoVitals();
                 vitals.source = 'demo';
-                els.lastSync.textContent = `${err.message} — DEMO DATA`;
-                els.lastSync.className = 'last-sync stale';
+                setSyncLabel(`${err.message} — DEMO DATA`, 'last-sync stale');
             }
         }
         setCachedVitals(vitals);
         renderVitals(vitals, 'success');
     } catch { /* handled */ } finally {
         syncing = false;
-        els.syncBtn.disabled = false;
+        if (els.syncBtn) els.syncBtn.disabled = false;
+        if (els.syncBtnBlue) els.syncBtnBlue.disabled = false;
     }
 }
 
@@ -183,7 +198,7 @@ function setupAutoSync() {
     }, AUTO_SYNC_MS);
 }
 
-/* ── Startup flow (always runs on fresh page load) ── */
+/* ── Startup flow ── */
 
 async function runStartupFlow() {
     clearMode();
@@ -201,9 +216,9 @@ async function runStartupFlow() {
     rain.setIntensity(0.5);
     await transitionToScreen('screen-wake', 'none');
     setBodyPhase('phase-wake');
+    bindLiquidButtons();
 
-    const wakeContainer = $('wake-container');
-    runWakeUpSequence(wakeContainer, input => {
+    runWakeUpSequence($('wake-container'), input => {
         wakeInput = input;
         input.addEventListener('keydown', e => {
             if (e.key === 'Enter') enterSimulation();
@@ -213,49 +228,55 @@ async function runStartupFlow() {
 }
 
 async function enterSimulation() {
-    await playBlockReveal('SYSTEM START');
-    await playCascade('rise');
+    await playPortalTransition();
     await transitionToScreen('screen-pill', 'none');
+    bindLiquidButtons();
 }
 
 async function choosePill(mode) {
     experienceMode = mode;
     setMode(mode);
-    document.body.classList.toggle('blue-pill', mode === 'blue');
 
     if (mode === 'blue') {
+        document.body.classList.add('blue-pill');
         rain.stop();
-        await playBinaryDissolve();
-        await transitionToScreen('screen-hud', 'none');
         setBodyPhase('phase-hud');
-        startHudDecorations();
+
+        // Blue pill: no transition animation — instant minimal HUD
+        await showScreenInstant('screen-hud');
+        $('screen-hud')?.classList.add('blue-enter');
+        setTimeout(() => $('screen-hud')?.classList.remove('blue-enter'), 400);
+        bindLiquidButtons();
         await syncVitals({ forceDemo: !getToken() });
         return;
     }
 
-    await playCascade('rise');
+    // Red pill: full cinematic transition → boot → tactical HUD
+    document.body.classList.add('red-pill');
+    await playRedPillTransition();
     await transitionToScreen('screen-boot', 'none');
     setBodyPhase('phase-boot');
     rain.setIntensity(0.7);
+    rain.start(0.7);
 
     radar = initRadar($('boot-radar'));
     radar.start();
 
-    const progressFill = $('boot-progress-fill');
-    runBootSequence($('boot-terminal'), progressFill, async () => {
+    runBootSequence($('boot-terminal'), $('boot-progress-fill'), async () => {
         radar.stop();
-        await playBlockReveal('NEURAL LINK');
-        await playCascade('fall');
-        rain.setIntensity(0.3);
+        await playRedHudReveal();
         await transitionToScreen('screen-hud', 'none');
         setBodyPhase('phase-hud');
+        rain.setIntensity(0.3);
         rain.start(0.3);
         startHudDecorations();
+        bindLiquidButtons();
         await syncVitals();
     });
 }
 
 function startHudDecorations() {
+    if (experienceMode !== 'red') return;
     startMarquee($('top-marquee'));
     startHexTicker($('hex-ticker'));
 }
@@ -267,6 +288,7 @@ async function openSettings() {
     await playFileParsing();
     await transitionToScreen('screen-settings', 'none');
     await playBlinds('open');
+    bindLiquidButtons();
 }
 
 async function closeSettings() {
@@ -287,7 +309,6 @@ function setupVoiceHints() {
     const hints = [
         '"Show vitals" · "How\'s my recovery?"',
         '"Sync" · "Focus mode" · "Settings"',
-        '"Log note" · "Focus mode"',
     ];
     let i = 0;
     const el = $('voice-hints');
@@ -306,20 +327,21 @@ function setupKeyboard() {
     document.addEventListener('keydown', e => {
         if (e.key === 'Enter' && $('screen-wake')?.classList.contains('active')) enterSimulation();
         if (e.key === 's' || e.key === 'S') {
-            if ($('screen-hud')?.classList.contains('active')) openSettings();
+            if ($('screen-hud')?.classList.contains('active') && experienceMode === 'red') openSettings();
         }
         if (e.key === 'f' || e.key === 'F') toggleFocus();
     });
 }
 
 function toggleFocus() {
+    if (experienceMode !== 'red') return;
     focusMode = !focusMode;
     document.body.classList.toggle('focus-mode', focusMode);
     if (focusMode) {
         rain?.stop();
         duckAmbience();
     } else {
-        if (experienceMode === 'red') rain?.start(0.25);
+        rain?.start(0.25);
         restoreAmbience();
     }
 }
@@ -333,8 +355,9 @@ function boot() {
     $('enter-btn').addEventListener('click', enterSimulation);
     $('pill-red').addEventListener('click', () => choosePill('red'));
     $('pill-blue').addEventListener('click', () => choosePill('blue'));
-    els.syncBtn.addEventListener('click', () => syncVitals());
-    $('settings-btn').addEventListener('click', openSettings);
+    els.syncBtn?.addEventListener('click', () => syncVitals());
+    els.syncBtnBlue?.addEventListener('click', () => syncVitals());
+    $('settings-btn')?.addEventListener('click', openSettings);
     $('settings-close').addEventListener('click', closeSettings);
     $('settings-save').addEventListener('click', saveSettings);
     els.autoToggle.addEventListener('click', () => els.autoToggle.classList.toggle('on'));
@@ -352,7 +375,6 @@ function boot() {
     setupVoiceHints();
     setupKeyboard();
     setupAutoSync();
-
     runStartupFlow();
 }
 

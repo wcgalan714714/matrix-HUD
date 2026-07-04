@@ -90,6 +90,75 @@ export function playFileParsing() {
     });
 }
 
+export function playGlitchFlash() {
+    return new Promise(resolve => {
+        const el = document.createElement('div');
+        el.className = 'glitch-flash';
+        el.innerHTML = '<div class="glitch-r"></div><div class="glitch-g"></div><div class="glitch-b"></div>';
+        document.body.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('active'));
+        setTimeout(() => { el.remove(); resolve(); }, 380);
+    });
+}
+
+export function playWhiteRabbitTrail() {
+    return new Promise(resolve => {
+        const el = document.createElement('div');
+        el.className = 'rabbit-trail';
+        el.innerHTML = '<div class="rabbit-icon">🐇</div><div class="trail-line"></div>';
+        document.body.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('run'));
+        setTimeout(() => { el.remove(); resolve(); }, 900);
+    });
+}
+
+export function playCrtSweep() {
+    return new Promise(resolve => {
+        const el = document.createElement('div');
+        el.className = 'crt-sweep';
+        document.body.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('sweep'));
+        setTimeout(() => { el.remove(); resolve(); }, 650);
+    });
+}
+
+/** Wake → Pill: Matrix portal (glitch + rabbit + cascade + block reveal) */
+export async function playPortalTransition() {
+    document.body.classList.add('crt-glitch');
+    await playGlitchFlash();
+    await playWhiteRabbitTrail();
+    await playCascade('rise');
+    await playBlockReveal('FOLLOW THE WHITE RABBIT');
+    await playCrtSweep();
+}
+
+/** Red pill → Boot: EVA armor shutters + matrix cascade */
+export async function playRedPillTransition() {
+    await playBlinds('close');
+    await playGlitchFlash();
+    await playCascade('rise');
+    await playBlockReveal('ENTER THE MATRIX');
+    await playBlinds('open');
+}
+
+/** Boot → Red HUD: neural link establish */
+export async function playRedHudReveal() {
+    await playBlinds('close');
+    await playBinaryDissolve();
+    await playBlockReveal('NEURAL LINK');
+    await playCascade('fall');
+    await playCrtSweep();
+    await playBlinds('open');
+}
+
+export async function showScreenInstant(screenId) {
+    document.querySelectorAll('.screen').forEach(s => {
+        s.classList.remove('active', 'entering');
+    });
+    const screen = document.getElementById(screenId);
+    if (screen) screen.classList.add('active');
+}
+
 export async function transitionToScreen(screenId, type = 'cascade') {
     const screen = document.getElementById(screenId);
     if (!screen) return;
