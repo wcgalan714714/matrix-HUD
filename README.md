@@ -15,9 +15,11 @@ A calm, premium, always-available **neural companion** that shows your most impo
 ## Core Features
 
 ### MVP
-- **Main HUD View** — Readiness, Sleep, HRV, Resting HR, Activity, Steps in a 2×3 glassmorphism grid
-- **Red Pill / Blue Pill** — Full Matrix experience vs. minimal static vitals (accessibility)
-- **Wake Up Boot Sequence** — Terminal startup with NERV-style system lines
+- **Cinematic Startup Chain** — Preloader (matrix rain + CRT) → Wake Up typewriter → Pill choice → NERV boot → HUD
+- **Vault Motion System** — Vertical cascade, EVA blinds, block-reveal flash, binary dissolve, FILE PARSING
+- **Design Mix** — Glassmorphism + neomorphism + Matrix rain + Evangelion brackets/telemetry/marquee
+- **Liquid Buttons** — Vault-exact ripple/morph on ENTER SIMULATION, pills, FORCE SYNC, settings
+- **Main HUD View** — Readiness hero card + 5 vitals in neo-glass grid with hex telemetry ticker
 - **Manual Sync** — `FORCE SYNC` liquid button (primary refresh method)
 - **Oura Ring 5 API** — Personal Access Token stored locally
 - **Settings** — Token input, optional 30-min auto-sync toggle
