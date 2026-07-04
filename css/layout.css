@@ -17,14 +17,28 @@ body {
     -webkit-user-select: none;
     user-select: none;
     position: relative;
+    cursor: crosshair;
+}
+
+body.blue-pill {
+    cursor: default;
 }
 
 #matrix-canvas {
     position: fixed;
     inset: 0;
     z-index: 0;
-    opacity: 0.22;
+    opacity: 0.55;
     pointer-events: none;
+    transition: opacity 0.8s ease;
+}
+
+body.phase-hud #matrix-canvas {
+    opacity: 0.28;
+}
+
+body.blue-pill #matrix-canvas {
+    opacity: 0;
 }
 
 .hex-grid {
@@ -32,7 +46,7 @@ body {
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    opacity: 0.04;
+    opacity: 0.07;
     background-image:
         linear-gradient(30deg, var(--green) 12%, transparent 12.5%, transparent 87%, var(--green) 87.5%, var(--green)),
         linear-gradient(150deg, var(--green) 12%, transparent 12.5%, transparent 87%, var(--green) 87.5%, var(--green)),
@@ -42,6 +56,8 @@ body {
     background-position: 0 0, 0 0, 24px 42px, 24px 42px;
 }
 
+body.blue-pill .hex-grid { display: none; }
+
 .scanline {
     position: fixed;
     inset: 0;
@@ -50,12 +66,14 @@ body {
     background: repeating-linear-gradient(
         to bottom,
         transparent 0,
-        transparent 3px,
-        rgba(0, 255, 65, 0.02) 3px,
-        rgba(0, 255, 65, 0.02) 4px
+        transparent 2px,
+        rgba(0, 255, 65, 0.04) 2px,
+        rgba(0, 255, 65, 0.04) 3px
     );
-    animation: scan-drift 6s linear infinite;
+    animation: scan-drift 4.5s linear infinite;
 }
+
+body.blue-pill .scanline { display: none; }
 
 @keyframes scan-drift {
     0% { transform: translateY(-100%); }
@@ -67,17 +85,19 @@ body {
     inset: 0;
     z-index: 10;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: var(--safe-margin);
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.45s ease, visibility 0.45s;
+    pointer-events: none;
 }
 
 .screen.active {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
 }
 
 .hud-shell {
@@ -85,40 +105,74 @@ body {
     max-width: var(--hud-max);
 }
 
-.crosshair {
-    position: fixed;
-    top: 10px;
-    right: 12px;
-    width: 18px;
-    height: 18px;
-    z-index: 20;
-    pointer-events: none;
-    opacity: 0.35;
+.hud-frame {
+    position: relative;
+    padding: 14px 12px 12px;
 }
 
-.crosshair::before,
-.crosshair::after {
+/* NERV corner brackets */
+.frame-bracket {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-color: rgba(0, 255, 65, 0.45);
+    border-style: solid;
+    pointer-events: none;
+}
+
+.frame-bracket.tl { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.frame-bracket.tr { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.frame-bracket.bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+.frame-bracket.br { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+.crosshair-deco {
+    position: fixed;
+    top: 8px;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.crosshair-deco::before,
+.crosshair-deco::after {
     content: '';
     position: absolute;
     background: var(--green);
 }
 
-.crosshair::before {
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
+.crosshair-deco::before {
+    top: 50%; left: 0; right: 0; height: 1px;
     transform: translateY(-50%);
 }
 
-.crosshair::after {
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 1px;
+.crosshair-deco::after {
+    left: 50%; top: 0; bottom: 0; width: 1px;
     transform: translateX(-50%);
 }
 
-.hidden {
-    display: none !important;
+.crosshair-deco .ring {
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgba(0, 255, 65, 0.35);
+    border-radius: 50%;
 }
+
+body.blue-pill .crosshair-deco { display: none; }
+
+.hidden { display: none !important; }
+
+.top-marquee {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 15;
+    padding: 4px 0;
+    background: rgba(0, 0, 0, 0.75);
+    border-bottom: 1px solid rgba(0, 255, 65, 0.15);
+}
+
+body.blue-pill .top-marquee { display: none; }

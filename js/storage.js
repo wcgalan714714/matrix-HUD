@@ -22,11 +22,15 @@ export function setAutoSync(enabled) {
 }
 
 export function getMode() {
-    return localStorage.getItem(STORAGE_KEYS.mode) || '';
+    return sessionStorage.getItem(STORAGE_KEYS.mode) || '';
 }
 
 export function setMode(mode) {
-    localStorage.setItem(STORAGE_KEYS.mode, mode);
+    sessionStorage.setItem(STORAGE_KEYS.mode, mode);
+}
+
+export function clearMode() {
+    sessionStorage.removeItem(STORAGE_KEYS.mode);
 }
 
 export function getCachedVitals() {

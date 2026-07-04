@@ -2,27 +2,25 @@ const CHARS = '01アイウエオカキクケコサシスセソタチツテトナ
 
 export function initMatrixRain(canvas) {
     const ctx = canvas.getContext('2d', { alpha: true });
-    const fontSize = 11;
-    let width = 0;
-    let height = 0;
-    let columns = 0;
-    let drops = [];
-    let speeds = [];
-    let running = false;
-    let frameId = null;
+    const fontSize = 12;
+    let width = 0, height = 0, columns = 0;
+    let drops = [], speeds = [];
+    let running = false, frameId = null;
+    let intensity = 0.6;
 
     function resize() {
         width = window.innerWidth;
         height = window.innerHeight;
         canvas.width = width;
         canvas.height = height;
-        columns = Math.floor(width / fontSize) + 1;
+        columns = Math.floor(width / fontSize) + 2;
         drops = Array.from({ length: columns }, () => Math.random() * (height / fontSize));
-        speeds = Array.from({ length: columns }, () => 0.35 + Math.random() * 0.55);
+        speeds = Array.from({ length: columns }, () => 0.5 + Math.random() * 1.2);
     }
 
-    function draw(intensity = 0.3) {
-        ctx.fillStyle = `rgba(10, 15, 10, ${0.08 + intensity * 0.04})`;
+    function draw() {
+        const fade = 0.06 + intensity * 0.06;
+        ctx.fillStyle = `rgba(10, 15, 10, ${fade})`;
         ctx.fillRect(0, 0, width, height);
         ctx.font = `${fontSize}px monospace`;
 
@@ -30,38 +28,46 @@ export function initMatrixRain(canvas) {
             const ch = CHARS[Math.floor(Math.random() * CHARS.length)];
             const x = i * fontSize;
             const y = drops[i] * fontSize;
-            const alpha = 0.25 + Math.random() * 0.35;
-            ctx.fillStyle = `rgba(0, 255, 65, ${alpha})`;
-            ctx.fillText(ch, x, y);
+            const headAlpha = 0.5 + intensity * 0.4;
+            const tailAlpha = 0.15 + intensity * 0.2;
 
-            if (y > height && Math.random() > 0.985) drops[i] = 0;
-            drops[i] += speeds[i] * (0.6 + intensity * 0.4);
+            ctx.fillStyle = `rgba(0, 255, 65, ${headAlpha})`;
+            ctx.fillText(ch, x, y);
+            ctx.fillStyle = `rgba(0, 255, 65, ${tailAlpha * 0.5})`;
+            ctx.fillText(ch, x, y - fontSize);
+
+            if (y > height && Math.random() > 0.975) drops[i] = 0;
+            drops[i] += speeds[i] * (0.5 + intensity * 0.6);
         }
     }
 
-    function loop(intensity) {
+    function loop() {
         if (!running) return;
-        draw(intensity);
-        frameId = requestAnimationFrame(() => loop(intensity));
+        draw();
+        frameId = requestAnimationFrame(loop);
     }
 
     window.addEventListener('resize', resize);
     resize();
 
     return {
-        start(intensity = 0.3) {
+        start(level = 0.6) {
+            intensity = level;
             if (running) return;
             running = true;
-            loop(intensity);
+            loop();
         },
         stop() {
             running = false;
             if (frameId) cancelAnimationFrame(frameId);
             ctx.clearRect(0, 0, width, height);
         },
-        setIntensity(intensity) {
-            this._intensity = intensity;
+        setIntensity(level) {
+            intensity = Math.max(0.15, Math.min(1, level));
         },
-        _intensity: 0.3,
+        burst() {
+            intensity = Math.min(1, intensity + 0.25);
+            setTimeout(() => { intensity = Math.max(0.25, intensity - 0.15); }, 800);
+        },
     };
 }

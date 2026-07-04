@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="SYNTH — Neural companion HUD for Meta Ray-Ban Display glasses. Glanceable Oura Ring 5 vitals.">
+    <meta name="description" content="SYNTH — Neural companion HUD for Meta Ray-Ban Display glasses">
     <title>SYNTH • Neural HUD</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,112 +11,162 @@
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/motion.css">
 </head>
-<body>
+<body class="phase-preloader">
     <canvas id="matrix-canvas" aria-hidden="true"></canvas>
     <div class="hex-grid" aria-hidden="true"></div>
     <div class="scanline" aria-hidden="true"></div>
-    <div class="crosshair" aria-hidden="true"></div>
+    <div class="crt-overlay" aria-hidden="true"></div>
+    <div class="crt-flicker" aria-hidden="true"></div>
+    <div class="crosshair-deco" aria-hidden="true"><div class="ring"></div></div>
 
-    <!-- Red / Blue Pill -->
-    <section id="screen-pill" class="screen active" aria-label="Choose experience mode">
-        <div class="hud-shell pill-screen">
-            <div class="pill-title">SYNTH</div>
-            <div class="pill-sub">Neural status overlay for Meta Ray-Ban Display<br>See yourself clearly.</div>
-            <div class="section-tag">SEC.00 — INITIALIZATION</div>
-            <div class="pill-row">
-                <div id="pill-red" class="glass-panel pill-card red" role="button" tabindex="0" aria-label="Red Pill — full SYNTH experience">
-                    <div class="pill-name">RED PILL</div>
-                    <div class="pill-desc">Full neural interface. Matrix rain, boot sequence, tactical HUD.</div>
-                </div>
-                <div id="pill-blue" class="glass-panel pill-card blue" role="button" tabindex="0" aria-label="Blue Pill — minimal read-only vitals">
-                    <div class="pill-name">BLUE PILL</div>
-                    <div class="pill-desc">Minimal static vitals. Quick glance, no effects.</div>
+    <div class="top-marquee" id="top-marquee" aria-hidden="true"></div>
+
+    <!-- 0 · PRELOADER (Matrix glitch reveal) -->
+    <section id="screen-preloader" class="screen active" aria-label="Loading">
+        <div class="preloader-content zoom-enter">
+            <div class="logo logo-xl">SYNTH</div>
+            <div class="section-tag">NEURAL LINK INITIALIZING</div>
+            <div class="preloader-bar"><div id="preloader-fill" class="preloader-fill"></div></div>
+            <div class="wake-line dim" style="margin-top:12px;font-size:11px;" id="preloader-status">LOADING MATRIX PROTOCOL...</div>
+        </div>
+    </section>
+
+    <!-- 1 · WAKE UP (Matrix terminal prompt) -->
+    <section id="screen-wake" class="screen" aria-label="Wake up sequence">
+        <div class="hud-shell">
+            <div class="section-tag">SEC.00 — TERMINAL ACCESS</div>
+            <div class="glass-panel wake-panel hud-frame">
+                <span class="frame-bracket tl"></span>
+                <span class="frame-bracket tr"></span>
+                <span class="frame-bracket bl"></span>
+                <span class="frame-bracket br"></span>
+                <div id="wake-container"></div>
+                <div class="wake-actions">
+                    <button id="enter-btn" class="liquid-btn wide">ENTER SIMULATION</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Boot sequence -->
-    <section id="screen-boot" class="screen" aria-label="System boot">
-        <div class="hud-shell">
-            <div class="section-tag">SEC.01 — SYSTEM BOOT</div>
-            <div id="boot-terminal" class="glass-panel boot-terminal"></div>
+    <!-- 2 · PILL CHOICE -->
+    <section id="screen-pill" class="screen" aria-label="Red or Blue Pill">
+        <div class="hud-shell pill-screen">
+            <div class="logo logo-xl">SYNTH</div>
+            <div class="section-tag">SEC.01 — CHOICE PROTOCOL</div>
+            <p class="pill-quote">"This is your last chance. After this, there is no turning back."</p>
+            <div class="pill-row">
+                <button id="pill-red" class="liquid-btn red wide">RED PILL — FULL NEURAL HUD</button>
+                <button id="pill-blue" class="liquid-btn blue wide">BLUE PILL — MINIMAL VITALS</button>
+            </div>
+            <p class="pill-hint">RED: Matrix rain · Boot sequence · Tactical UI<br>BLUE: Static glance · No effects</p>
         </div>
     </section>
 
-    <!-- Main HUD -->
+    <!-- 3 · BOOT (Evangelion NERV startup) -->
+    <section id="screen-boot" class="screen" aria-label="System boot">
+        <div class="hud-shell">
+            <div class="section-tag">SEC.02 — SYSTEM BOOT</div>
+            <div class="glass-panel hud-frame" style="padding:14px;">
+                <span class="frame-bracket tl"></span>
+                <span class="frame-bracket tr"></span>
+                <span class="frame-bracket bl"></span>
+                <span class="frame-bracket br"></span>
+                <div class="boot-layout">
+                    <div id="boot-terminal" class="boot-terminal"></div>
+                    <div class="boot-radar-wrap">
+                        <canvas id="boot-radar" width="120" height="120"></canvas>
+                    </div>
+                </div>
+                <div class="boot-progress"><div id="boot-progress-fill" class="boot-progress-fill"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4 · MAIN HUD -->
     <section id="screen-hud" class="screen" aria-label="Vitals HUD">
         <div class="hud-shell">
             <div id="warning-banner" class="warning-banner hidden" role="alert"></div>
 
-            <header class="hud-header">
-                <div>
-                    <div class="logo">SYNTH</div>
-                    <div class="section-tag">SEC.02 — VITALS</div>
-                </div>
-                <div>
-                    <div id="status-line" class="status-line">STANDBY</div>
-                    <button id="settings-btn" class="icon-btn" aria-label="Settings" style="margin-top:6px;float:right;">⚙</button>
-                </div>
-            </header>
+            <div class="glass-panel hud-frame" style="padding:12px 10px 10px;">
+                <span class="frame-bracket tl"></span>
+                <span class="frame-bracket tr"></span>
+                <span class="frame-bracket bl"></span>
+                <span class="frame-bracket br"></span>
 
-            <div class="vitals-grid">
-                <div class="glass-panel vital-card">
-                    <div class="vital-label">Readiness</div>
-                    <div><span id="readiness" class="vital-value">—</span></div>
-                    <div id="readiness-meta" class="vital-meta">—</div>
+                <header class="hud-header">
+                    <div>
+                        <div class="logo">SYNTH</div>
+                        <div class="section-tag">SEC.03 — VITALS</div>
+                    </div>
+                    <div>
+                        <div id="status-line" class="status-line">STANDBY</div>
+                        <button id="settings-btn" class="icon-btn" aria-label="Settings" style="margin-top:5px;float:right;">⚙</button>
+                    </div>
+                </header>
+
+                <div class="vitals-grid">
+                    <div class="glass-panel vital-card hero neo-lift">
+                        <div class="vital-label">Readiness</div>
+                        <div><span id="readiness" class="vital-value">—</span></div>
+                        <div id="readiness-meta" class="vital-meta">—</div>
+                    </div>
+                    <div class="glass-panel vital-card neo-lift">
+                        <div class="vital-label">Sleep</div>
+                        <div><span id="sleep" class="vital-value">—</span></div>
+                        <div id="sleep-meta" class="vital-meta">Last night</div>
+                    </div>
+                    <div class="glass-panel vital-card neo-lift">
+                        <div class="vital-label">HRV</div>
+                        <div><span id="hrv" class="vital-value">—</span><span class="vital-unit">ms</span></div>
+                        <div id="hrv-meta" class="vital-meta">—</div>
+                    </div>
+                    <div class="glass-panel vital-card neo-lift">
+                        <div class="vital-label">Resting HR</div>
+                        <div><span id="hr" class="vital-value">—</span><span class="vital-unit">bpm</span></div>
+                        <div id="hr-meta" class="vital-meta">—</div>
+                    </div>
+                    <div class="glass-panel vital-card neo-lift">
+                        <div class="vital-label">Activity</div>
+                        <div><span id="activity" class="vital-value">—</span></div>
+                        <div id="activity-meta" class="vital-meta">—</div>
+                    </div>
+                    <div class="glass-panel vital-card neo-lift">
+                        <div class="vital-label">Steps</div>
+                        <div><span id="steps" class="vital-value">—</span></div>
+                        <div class="vital-meta">Today</div>
+                    </div>
                 </div>
-                <div class="glass-panel vital-card">
-                    <div class="vital-label">Sleep</div>
-                    <div><span id="sleep" class="vital-value">—</span></div>
-                    <div id="sleep-meta" class="vital-meta">Last night</div>
-                </div>
-                <div class="glass-panel vital-card">
-                    <div class="vital-label">HRV</div>
-                    <div><span id="hrv" class="vital-value">—</span><span class="vital-unit">ms</span></div>
-                    <div id="hrv-meta" class="vital-meta">—</div>
-                </div>
-                <div class="glass-panel vital-card">
-                    <div class="vital-label">Resting HR</div>
-                    <div><span id="hr" class="vital-value">—</span><span class="vital-unit">bpm</span></div>
-                    <div id="hr-meta" class="vital-meta">—</div>
-                </div>
-                <div class="glass-panel vital-card">
-                    <div class="vital-label">Activity</div>
-                    <div><span id="activity" class="vital-value">—</span></div>
-                    <div id="activity-meta" class="vital-meta">—</div>
-                </div>
-                <div class="glass-panel vital-card">
-                    <div class="vital-label">Steps</div>
-                    <div><span id="steps" class="vital-value">—</span></div>
-                    <div class="vital-meta">Today</div>
-                </div>
+
+                <footer class="hud-footer">
+                    <div id="last-sync" class="last-sync">LAST SYNC: NEVER</div>
+                    <button id="sync-btn" class="liquid-btn">FORCE SYNC</button>
+                </footer>
+
+                <div id="voice-hints" class="voice-hints">"Show vitals" · "How's my recovery?" · "Sync"</div>
+                <div id="hex-ticker" class="hex-ticker" style="margin-top:6px;"></div>
             </div>
-
-            <footer class="hud-footer">
-                <div id="last-sync" class="last-sync">LAST SYNC: NEVER</div>
-                <button id="sync-btn" class="liquid-btn">FORCE SYNC</button>
-            </footer>
-
-            <div id="voice-hints" class="voice-hints">"Show vitals" • "How's my recovery?"</div>
         </div>
     </section>
 
-    <!-- Settings (shallow overlay) -->
+    <!-- 5 · SETTINGS -->
     <section id="screen-settings" class="screen" aria-label="Settings">
-        <div class="glass-panel settings-panel">
+        <div class="glass-panel settings-panel hud-frame">
+            <span class="frame-bracket tl"></span>
+            <span class="frame-bracket tr"></span>
+            <span class="frame-bracket bl"></span>
+            <span class="frame-bracket br"></span>
             <div class="settings-title">CONFIG</div>
-            <div class="section-tag">SEC.03 — OURA LINK</div>
+            <div class="section-tag">SEC.04 — OURA LINK</div>
 
             <label class="field-label" for="token-input">Oura Personal Access Token</label>
             <input id="token-input" class="token-input" type="password" placeholder="Paste PAT from Oura Cloud" autocomplete="off">
-
-            <p class="settings-note">Token stays on this device only. Never sent to third-party servers. Generate at cloud.ouraring.com</p>
+            <p class="settings-note">Token stays on-device only. Generate at cloud.ouraring.com</p>
 
             <div class="settings-row">
                 <span>Auto-sync every 30 min</span>
-                <div id="auto-toggle" class="toggle" role="switch" aria-checked="false" tabindex="0"></div>
+                <div id="auto-toggle" class="toggle" role="switch" tabindex="0"></div>
             </div>
 
             <div class="settings-actions">

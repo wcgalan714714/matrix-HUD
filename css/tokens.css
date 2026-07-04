@@ -2,14 +2,20 @@
     --green: #00FF41;
     --bg: #0A0F0A;
     --panel: rgba(10, 20, 12, 0.85);
+    --panel-bright: rgba(14, 28, 16, 0.92);
     --amber: #FFB800;
     --alert: #FF3B5C;
+    --eva-red: #CC1133;
+    --eva-yellow: #E8C400;
+    --blue-pill: #4DA3FF;
     --text: #FFFFFF;
     --text-muted: #A0B0A0;
-    --border-glow: rgba(0, 255, 65, 0.3);
+    --border-glow: rgba(0, 255, 65, 0.35);
     --font-mono: 'VT323', 'Courier New', monospace;
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --radius: 10px;
-    --hud-max: 560px;
-    --safe-margin: 14px;
+    --hud-max: 580px;
+    --safe-margin: 12px;
+    --neo-shadow: 6px 6px 14px rgba(0, 0, 0, 0.55), -3px -3px 10px rgba(0, 255, 65, 0.04);
+    --glass-blur: 18px;
 }
