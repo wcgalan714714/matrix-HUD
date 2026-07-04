@@ -1,0 +1,124 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-user-select: none;
+    user-select: none;
+    position: relative;
+}
+
+#matrix-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.22;
+    pointer-events: none;
+}
+
+.hex-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image:
+        linear-gradient(30deg, var(--green) 12%, transparent 12.5%, transparent 87%, var(--green) 87.5%, var(--green)),
+        linear-gradient(150deg, var(--green) 12%, transparent 12.5%, transparent 87%, var(--green) 87.5%, var(--green)),
+        linear-gradient(30deg, var(--green) 12%, transparent 12.5%, transparent 87%, var(--green) 87.5%, var(--green)),
+        linear-gradient(150deg, var(--green) 12%, transparent 12.5%, transparent 87%, var(--green) 87.5%, var(--green));
+    background-size: 48px 84px;
+    background-position: 0 0, 0 0, 24px 42px, 24px 42px;
+}
+
+.scanline {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 3px,
+        rgba(0, 255, 65, 0.02) 3px,
+        rgba(0, 255, 65, 0.02) 4px
+    );
+    animation: scan-drift 6s linear infinite;
+}
+
+@keyframes scan-drift {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(200%); }
+}
+
+.screen {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--safe-margin);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.45s ease, visibility 0.45s;
+}
+
+.screen.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.hud-shell {
+    width: 100%;
+    max-width: var(--hud-max);
+}
+
+.crosshair {
+    position: fixed;
+    top: 10px;
+    right: 12px;
+    width: 18px;
+    height: 18px;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0.35;
+}
+
+.crosshair::before,
+.crosshair::after {
+    content: '';
+    position: absolute;
+    background: var(--green);
+}
+
+.crosshair::before {
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    transform: translateY(-50%);
+}
+
+.crosshair::after {
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    transform: translateX(-50%);
+}
+
+.hidden {
+    display: none !important;
+}

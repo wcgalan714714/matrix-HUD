@@ -1,0 +1,15 @@
+:root {
+    --green: #00FF41;
+    --bg: #0A0F0A;
+    --panel: rgba(10, 20, 12, 0.85);
+    --amber: #FFB800;
+    --alert: #FF3B5C;
+    --text: #FFFFFF;
+    --text-muted: #A0B0A0;
+    --border-glow: rgba(0, 255, 65, 0.3);
+    --font-mono: 'VT323', 'Courier New', monospace;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --radius: 10px;
+    --hud-max: 560px;
+    --safe-margin: 14px;
+}
