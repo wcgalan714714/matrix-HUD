@@ -72,13 +72,9 @@
                 <span class="frame-bracket tr"></span>
                 <span class="frame-bracket bl"></span>
                 <span class="frame-bracket br"></span>
-                <div id="wake-container">
-                    <div class="wake-line">Wake up, Neo...</div>
-                    <div class="wake-line">The Matrix has you.</div>
-                    <div class="wake-line dim">Follow the white rabbit.</div>
-                </div>
+                <div id="wake-container"></div>
                 <div class="wake-actions">
-                    <button id="enter-btn" class="liquid-btn wide"><span class="liquid-btn-label">ENTER SIMULATION</span></button>
+                    <button id="enter-btn" class="liquid-btn wide wake-btn-hidden"><span class="liquid-btn-label">ENTER SIMULATION</span></button>
                 </div>
             </div>
         </div>
@@ -104,12 +100,12 @@
                 </div>
                 <div class="glass-panel pill-choice-card blue-card">
                     <div class="pill-card-tag">BLUE PILL</div>
-                    <p class="pill-card-desc">Minimal static vitals — quick glance only.</p>
+                    <p class="pill-card-desc">NERV static channel — Evangelion × cyberpunk glance HUD.</p>
                     <ul class="pill-features">
-                        <li>Clean white-on-dark layout</li>
-                        <li>Four core vitals only</li>
-                        <li>No rain, boot, or effects</li>
-                        <li>Instant access — no transitions</li>
+                        <li>MAGI-style brackets + warning stripes</li>
+                        <li>Neon cyan/magenta vital modules</li>
+                        <li>Four core vitals · binary entry</li>
+                        <li>No Matrix rain or NERV boot</li>
                     </ul>
                     <button id="pill-blue" class="liquid-btn blue"><span class="liquid-btn-label">TAKE BLUE PILL</span></button>
                 </div>
@@ -199,49 +195,48 @@
         </div>
     </section>
 
-    <!-- 4b · BLUE PILL HUD — minimal static vitals -->
+    <!-- 4b · BLUE PILL HUD — Evangelion × Cyberpunk static channel -->
     <section id="screen-hud-blue" class="screen" aria-label="Blue Pill Vitals HUD">
         <div class="blue-hud-shell">
-            <div class="blue-hud-panel">
+            <div class="eva-cyber-panel hud-frame">
+                <span class="frame-bracket tl eva-bracket"></span>
+                <span class="frame-bracket tr cyber-bracket"></span>
+                <span class="frame-bracket bl cyber-bracket"></span>
+                <span class="frame-bracket br eva-bracket"></span>
+                <div class="eva-stripe-bar" aria-hidden="true">WARNING · STATIC VITALS CHANNEL · MAGI SYNC ACTIVE</div>
                 <header class="blue-hud-header">
-                    <div class="blue-hud-badge">BLUE PILL MODE</div>
+                    <div>
+                        <div class="eva-unit-id">UNIT-02 // BLUE PILL</div>
+                        <div class="section-tag blue-section-tag">SEC.03 — GLANCE MODE</div>
+                    </div>
                     <button id="settings-btn-blue" class="liquid-btn icon blue" aria-label="Settings"><span class="liquid-btn-label">⚙</span></button>
                 </header>
-                <div class="blue-hud-title">Vitals</div>
-                <div class="blue-hud-sub">Minimal static view · No effects · Quick glance only</div>
-                <div class="blue-vitals-list">
-                    <div class="blue-vital-row">
-                        <div>
-                            <div class="vital-label">Readiness</div>
-                            <div data-meta="readiness" class="vital-meta">—</div>
-                        </div>
-                        <div><span data-vital="readiness" class="vital-value">—</span></div>
-                    </div>
-                    <div class="blue-vital-row">
-                        <div>
-                            <div class="vital-label">Sleep</div>
-                            <div data-meta="sleep" class="vital-meta">Last night</div>
-                        </div>
+                <div class="cyber-readiness-block">
+                    <div class="cyber-module-label">PRIMARY METRIC</div>
+                    <div class="cyber-readiness-value"><span data-vital="readiness" class="vital-value">—</span></div>
+                    <div data-meta="readiness" class="vital-meta cyber-meta">—</div>
+                </div>
+                <div class="cyber-vitals-grid">
+                    <div class="cyber-vital-module">
+                        <div class="cyber-module-label">SLEEP</div>
                         <div><span data-vital="sleep" class="vital-value">—</span></div>
+                        <div data-meta="sleep" class="vital-meta cyber-meta">Last night</div>
                     </div>
-                    <div class="blue-vital-row">
-                        <div>
-                            <div class="vital-label">HRV</div>
-                            <div data-meta="hrv" class="vital-meta">—</div>
-                        </div>
+                    <div class="cyber-vital-module">
+                        <div class="cyber-module-label">HRV</div>
                         <div><span data-vital="hrv" class="vital-value">—</span><span class="vital-unit">ms</span></div>
+                        <div data-meta="hrv" class="vital-meta cyber-meta">—</div>
                     </div>
-                    <div class="blue-vital-row">
-                        <div>
-                            <div class="vital-label">Resting HR</div>
-                            <div data-meta="hr" class="vital-meta">—</div>
-                        </div>
+                    <div class="cyber-vital-module">
+                        <div class="cyber-module-label">RESTING HR</div>
                         <div><span data-vital="hr" class="vital-value">—</span><span class="vital-unit">bpm</span></div>
+                        <div data-meta="hr" class="vital-meta cyber-meta">—</div>
                     </div>
                 </div>
+                <div id="blue-hex-ticker" class="hex-ticker blue-ticker"></div>
                 <footer class="blue-hud-footer">
                     <div data-sync="label" class="last-sync">LAST SYNC: NEVER</div>
-                    <button id="sync-btn-blue" class="liquid-btn blue"><span class="liquid-btn-label">SYNC</span></button>
+                    <button id="sync-btn-blue" class="liquid-btn blue"><span class="liquid-btn-label">SYNC CHANNEL</span></button>
                 </footer>
             </div>
         </div>

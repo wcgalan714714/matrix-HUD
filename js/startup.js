@@ -4,6 +4,13 @@ const BOOT_LINES = [
     { text: '> OURA CHANNEL: STANDBY', cls: 'dim' },
 ];
 
+const WAKE_LINES = [
+    { text: 'Wake up, Neo...', dim: false },
+    { text: 'The Matrix has you.', dim: false },
+    { text: 'Follow the white rabbit.', dim: true },
+    { text: 'Knock, knock, Neo.', dim: true },
+];
+
 function bindRipple(btn) {
     if (btn.dataset.liquidBound) return;
     btn.dataset.liquidBound = '1';
@@ -18,6 +25,48 @@ function bindRipple(btn) {
 
 export function bindLiquidButtons(root = document) {
     root.querySelectorAll('.liquid-btn').forEach(bindRipple);
+}
+
+export function runWakeUpSequence(container, onComplete) {
+    container.innerHTML = '';
+    let lineIdx = 0;
+
+    function typeNextLine() {
+        if (lineIdx >= WAKE_LINES.length) {
+            onComplete?.();
+            return;
+        }
+
+        const spec = WAKE_LINES[lineIdx++];
+        const lineEl = document.createElement('div');
+        lineEl.className = 'wake-line' + (spec.dim ? ' dim' : '');
+        container.appendChild(lineEl);
+
+        let charIdx = 0;
+        const cursor = document.createElement('span');
+        cursor.className = 'type-cursor';
+
+        const typeTimer = setInterval(() => {
+            if (charIdx < spec.text.length) {
+                lineEl.textContent = spec.text.slice(0, ++charIdx);
+                lineEl.appendChild(cursor);
+            } else {
+                clearInterval(typeTimer);
+                cursor.remove();
+                setTimeout(typeNextLine, spec.dim ? 380 : 520);
+            }
+        }, 34);
+    }
+
+    typeNextLine();
+}
+
+export function startBlueTicker(el) {
+    if (!el) return;
+    const hex = () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0').toUpperCase();
+    const chunk = () => Array.from({ length: 32 }, () => `0x${hex()}`).join('  ');
+    const text = `${chunk()}    ${chunk()}    `;
+    el.innerHTML = `<span class="hex-ticker-inner blue-ticker-inner">${text}${text}</span>`;
 }
 
 export function runPreloader(onProgress) {

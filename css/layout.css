@@ -39,6 +39,10 @@ body.mode-blue #matrix-canvas {
     opacity: 0;
 }
 
+body.mode-blue .crt-overlay {
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(10, 8, 18, 0.65) 100%);
+}
+
 .hex-grid {
     position: fixed;
     inset: 0;

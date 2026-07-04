@@ -457,12 +457,17 @@ body.mode-blue .vital-value.sync-pulse {
     100% { transform: translateY(200%); opacity: 0; }
 }
 
-/* Blue pill: gentle fade only */
-.screen.blue-enter .blue-hud-panel {
-    animation: blue-fade-in 0.35s ease forwards;
+/* Blue pill: cyber snap-in */
+.screen.blue-enter .eva-cyber-panel {
+    animation: blue-cyber-in 0.42s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
 
-@keyframes blue-fade-in {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes blue-cyber-in {
+    0% { opacity: 0; transform: scale(0.96) translateY(10px); filter: blur(3px); }
+    70% { opacity: 1; transform: scale(1.01); filter: blur(0); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+body.mode-blue .binary-overlay {
+    color: var(--cyber-cyan);
 }

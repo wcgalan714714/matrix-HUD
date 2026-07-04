@@ -6,11 +6,11 @@ import {
 import { initMatrixRain } from './matrix-rain.js';
 import { initRadar } from './radar.js';
 import {
-    bindLiquidButtons, runPreloader, runBootSequence,
-    startHexTicker, startMarquee,
+    bindLiquidButtons, runPreloader, runWakeUpSequence, runBootSequence,
+    startHexTicker, startMarquee, startBlueTicker,
 } from './startup.js';
 import {
-    playQuickTransition, playBlinds, playFileParsing, showScreenInstant,
+    navigateTo, playBlinds, playFileParsing, showScreenInstant,
 } from './transitions.js';
 import { duckAmbience, restoreAmbience } from './ambience.js';
 
@@ -215,14 +215,22 @@ async function runStartupFlow() {
         if (pct > 85) $('preloader-status').textContent = 'MATRIX PROTOCOL READY';
     });
 
-    await playQuickTransition();
-    showScreenInstant('screen-wake');
+    await navigateTo('screen-wake', { effect: 'cascade' });
     setBodyPhase('phase-wake');
     bindLiquidButtons();
+
+    const enterBtn = $('enter-btn');
+    enterBtn?.classList.add('wake-btn-hidden');
+
+    runWakeUpSequence($('wake-container'), () => {
+        enterBtn?.classList.remove('wake-btn-hidden');
+        enterBtn?.classList.add('wake-btn-reveal');
+        bindLiquidButtons();
+    });
 }
 
 async function enterSimulation() {
-    showScreenInstant('screen-pill');
+    await navigateTo('screen-pill', { effect: 'sweep' });
     bindLiquidButtons();
 }
 
@@ -233,18 +241,16 @@ async function choosePill(mode) {
     if (mode === 'blue') {
         rain.stop();
         setBodyPhase('phase-hud');
-        showScreenInstant('screen-hud-blue');
-        $('screen-hud-blue')?.classList.add('blue-enter');
-        setTimeout(() => $('screen-hud-blue')?.classList.remove('blue-enter'), 350);
+        await navigateTo('screen-hud-blue', { effect: 'binary', enterClass: 'blue-enter' });
+        startBlueDecorations();
         bindLiquidButtons();
         await syncVitals({ forceDemo: !getToken() });
         return;
     }
 
-    // Red pill: straight to short boot → instant HUD (no stacked transitions)
     setBodyPhase('phase-boot');
     document.body.classList.add('mode-red');
-    showScreenInstant('screen-boot');
+    await navigateTo('screen-boot', { effect: 'blinds' });
     rain.setIntensity(0.6);
     rain.start(0.6);
     bindLiquidButtons();
@@ -255,9 +261,7 @@ async function choosePill(mode) {
     runBootSequence($('boot-terminal'), $('boot-progress-fill'), async () => {
         radar.stop();
         setBodyPhase('phase-hud');
-        showScreenInstant('screen-hud-red');
-        $('screen-hud-red')?.classList.add('entering');
-        setTimeout(() => $('screen-hud-red')?.classList.remove('entering'), 450);
+        await navigateTo('screen-hud-red', { effect: 'cascade-fall' });
         rain.setIntensity(0.3);
         rain.start(0.3);
         startHudDecorations();
@@ -269,6 +273,10 @@ async function choosePill(mode) {
 function startHudDecorations() {
     startMarquee($('top-marquee'));
     startHexTicker($('hex-ticker'));
+}
+
+function startBlueDecorations() {
+    startBlueTicker($('blue-hex-ticker'));
 }
 
 async function openSettings() {
@@ -315,9 +323,11 @@ function setupVoiceHints() {
 
 function setupKeyboard() {
     document.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && $('screen-wake')?.classList.contains('active')) enterSimulation();
+        if (e.key === 'Enter' && $('screen-wake')?.classList.contains('active')
+            && !$('enter-btn')?.classList.contains('wake-btn-hidden')) enterSimulation();
         if (e.key === 's' || e.key === 'S') {
-            if ($('screen-hud-red')?.classList.contains('active')) openSettings();
+            if ($('screen-hud-red')?.classList.contains('active')
+                || $('screen-hud-blue')?.classList.contains('active')) openSettings();
         }
         if (e.key === 'f' || e.key === 'F') toggleFocus();
     });

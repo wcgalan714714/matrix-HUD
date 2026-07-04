@@ -200,6 +200,22 @@
     text-align: center;
 }
 
+.wake-btn-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(8px);
+}
+
+.wake-btn-reveal {
+    animation: wake-btn-in 0.45s ease forwards;
+}
+
+@keyframes wake-btn-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); visibility: visible; pointer-events: auto; }
+}
+
 .terminal-input {
     width: 100%;
     background: transparent;
@@ -256,8 +272,9 @@
 }
 
 .pill-choice-card.blue-card {
-    border-color: rgba(77, 163, 255, 0.4);
-    box-shadow: var(--neo-shadow), 0 0 20px rgba(77, 163, 255, 0.08);
+    border-color: rgba(0, 229, 255, 0.35);
+    box-shadow: var(--neo-shadow), 0 0 20px rgba(255, 45, 154, 0.06), inset 0 0 24px rgba(0, 229, 255, 0.03);
+    background: linear-gradient(160deg, rgba(18, 10, 28, 0.9) 0%, rgba(10, 14, 24, 0.85) 100%);
 }
 
 .pill-card-tag {
@@ -267,7 +284,10 @@
 }
 
 .red-card .pill-card-tag { color: var(--alert); }
-.blue-card .pill-card-tag { color: var(--blue-pill); }
+.blue-card .pill-card-tag {
+    color: var(--cyber-cyan);
+    text-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+}
 
 .pill-card-desc {
     font-size: 11px;
@@ -597,127 +617,207 @@
     justify-content: flex-end;
 }
 
-/* ── BLUE PILL minimal HUD (completely separate aesthetic) ── */
+/* ── BLUE PILL HUD — Evangelion × Cyberpunk ── */
 body.mode-blue {
-    background: #12151c;
+    background:
+        radial-gradient(ellipse at 20% 0%, rgba(204, 17, 51, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(0, 229, 255, 0.08) 0%, transparent 45%),
+        linear-gradient(165deg, #0a0812 0%, #120e1a 50%, #0d1018 100%);
     cursor: default;
 }
 
 body.mode-blue #matrix-canvas,
-body.mode-blue .hex-grid,
-body.mode-blue .scanline,
-body.mode-blue .crt-overlay,
-body.mode-blue .crt-flicker,
-body.mode-blue .crosshair-deco,
 body.mode-blue .top-marquee { display: none !important; }
+
+body.mode-blue .hex-grid {
+    opacity: 0.05;
+    background-image:
+        linear-gradient(30deg, var(--cyber-cyan) 12%, transparent 12.5%, transparent 87%, var(--cyber-cyan) 87.5%, var(--cyber-cyan)),
+        linear-gradient(150deg, var(--cyber-magenta) 12%, transparent 12.5%, transparent 87%, var(--cyber-magenta) 87.5%, var(--cyber-magenta));
+}
+
+body.mode-blue .scanline {
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 2px,
+        rgba(0, 229, 255, 0.03) 2px,
+        rgba(0, 229, 255, 0.03) 3px
+    );
+}
+
+body.mode-blue .crosshair-deco {
+    opacity: 0.35;
+    filter: hue-rotate(180deg);
+}
 
 .blue-hud-shell {
     width: 100%;
-    max-width: 400px;
-    padding: 8px;
+    max-width: 420px;
+    padding: 6px;
 }
 
-.blue-hud-panel {
-    background: #161a22;
-    border: 1px solid rgba(77, 163, 255, 0.2);
-    border-radius: 16px;
-    padding: 24px 20px;
-    box-shadow: none;
+.eva-cyber-panel {
+    position: relative;
+    padding: 14px 12px 12px;
+    background:
+        linear-gradient(135deg, rgba(255, 45, 154, 0.04) 0%, transparent 40%),
+        linear-gradient(225deg, rgba(0, 229, 255, 0.05) 0%, transparent 45%),
+        var(--eva-panel);
+    border: 1px solid rgba(0, 229, 255, 0.22);
+    border-radius: 4px;
+    box-shadow:
+        0 0 24px rgba(0, 229, 255, 0.06),
+        inset 0 0 30px rgba(204, 17, 51, 0.04);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.eva-bracket { border-color: rgba(204, 17, 51, 0.65) !important; }
+.cyber-bracket { border-color: rgba(0, 229, 255, 0.5) !important; }
+
+.eva-stripe-bar {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--eva-yellow);
+    text-align: center;
+    padding: 4px 6px;
+    margin: -2px -4px 12px;
+    background: repeating-linear-gradient(
+        -45deg,
+        rgba(204, 17, 51, 0.35),
+        rgba(204, 17, 51, 0.35) 3px,
+        rgba(0, 0, 0, 0.4) 3px,
+        rgba(0, 0, 0, 0.4) 6px
+    );
+    border-top: 1px solid rgba(232, 196, 0, 0.4);
+    border-bottom: 1px solid rgba(204, 17, 51, 0.5);
 }
 
 .blue-hud-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 8px;
 }
 
-.blue-hud-badge {
-    display: inline-block;
-    font-family: var(--font-sans);
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    color: var(--blue-pill);
-    border: 1px solid rgba(77, 163, 255, 0.35);
-    border-radius: 4px;
-    padding: 3px 8px;
-}
-
-.blue-hud-title {
-    font-family: var(--font-sans);
-    font-size: 26px;
-    font-weight: 500;
-    color: #f0f4f8;
-    letter-spacing: 0.5px;
+.eva-unit-id {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--cyber-cyan);
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.35);
     margin-bottom: 4px;
 }
 
-.blue-hud-sub {
-    font-family: var(--font-sans);
-    font-size: 12px;
-    color: #7a8a9a;
-    margin-bottom: 22px;
-    line-height: 1.4;
+.blue-section-tag {
+    color: rgba(255, 45, 154, 0.7);
 }
 
-.blue-vitals-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
+.blue-section-tag::before,
+.blue-section-tag::after {
+    color: rgba(255, 45, 154, 0.45);
 }
 
-.blue-vital-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 14px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+.cyber-readiness-block {
+    text-align: center;
+    padding: 16px 12px;
+    margin-bottom: 10px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(0, 229, 255, 0.25);
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    box-shadow: inset 0 0 20px rgba(0, 229, 255, 0.05);
 }
 
-.blue-vital-row:last-child { border-bottom: none; }
-
-.blue-vital-row .vital-label {
-    font-family: var(--font-sans);
-    font-size: 13px;
-    color: #8a9aaa;
-    text-transform: none;
-    letter-spacing: 0;
+.cyber-module-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    color: var(--cyber-magenta);
+    text-transform: uppercase;
+    margin-bottom: 4px;
 }
 
-.blue-vital-row .vital-value {
-    font-family: var(--font-sans);
-    font-size: 28px;
-    font-weight: 500;
-    color: #ffffff;
-    text-shadow: none;
+.cyber-readiness-block .vital-value {
+    font-family: var(--font-mono);
+    font-size: 48px;
+    color: var(--cyber-cyan);
+    text-shadow: 0 0 16px rgba(0, 229, 255, 0.4);
+    line-height: 1;
 }
 
-.blue-vital-row .vital-unit {
-    font-size: 14px;
-    color: #6a7a8a;
-}
-
-.blue-vital-row .vital-meta {
-    font-family: var(--font-sans);
+.cyber-meta {
+    font-family: var(--font-mono);
     font-size: 10px;
-    color: #5a6a7a;
-    text-align: right;
-    margin-top: 2px;
+    color: var(--eva-yellow);
+    margin-top: 4px;
+}
+
+.cyber-vitals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 400px) {
+    .cyber-vitals-grid { grid-template-columns: 1fr; }
+}
+
+.cyber-vital-module {
+    padding: 10px 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 45, 154, 0.2);
+    border-left: 2px solid var(--cyber-magenta);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+
+.cyber-vital-module .vital-value {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    color: #f0f8ff;
+    text-shadow: 0 0 8px rgba(255, 45, 154, 0.25);
+    line-height: 1.1;
+}
+
+.cyber-vital-module .vital-unit {
+    font-size: 10px;
+    color: rgba(0, 229, 255, 0.6);
+}
+
+.blue-ticker {
+    margin-top: 6px;
+    color: rgba(0, 229, 255, 0.3);
+}
+
+.blue-ticker-inner {
+    animation: hex-scroll 20s linear infinite;
 }
 
 .blue-hud-footer {
-    margin-top: 20px;
+    margin-top: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(204, 17, 51, 0.25);
 }
 
 .blue-hud-footer .last-sync {
-    font-family: var(--font-sans);
-    font-size: 11px;
-    color: #6a7a8a;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: rgba(160, 176, 200, 0.7);
+    letter-spacing: 1px;
+}
+
+.blue-hud-footer .last-sync.stale { color: var(--eva-yellow); }
+.blue-hud-footer .last-sync.error { color: var(--eva-red); }
+
+#screen-hud-blue .vital-value.sync-pulse {
+    animation: value-pulse-blue 0.6s ease;
 }
 
 /* Red pill mode */
