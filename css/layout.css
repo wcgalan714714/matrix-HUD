@@ -128,6 +128,13 @@ body.mode-blue .scanline { display: none; }
     pointer-events: auto;
 }
 
+#screen-wake.active,
+#screen-pill.active {
+    padding: 20px;
+    justify-content: stretch;
+    align-items: stretch;
+}
+
 .hud-shell {
     width: 100%;
     max-width: var(--hud-max);

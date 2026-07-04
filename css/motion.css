@@ -1,3 +1,23 @@
+/* ── Fluid liquid transitions (glasses) ── */
+.screen.screen-exit {
+    animation: fluid-out 0.34s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    pointer-events: none;
+}
+
+.screen.screen-fluid-enter {
+    animation: fluid-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes fluid-out {
+    from { opacity: 1; transform: scale(1); filter: blur(0); }
+    to { opacity: 0; transform: scale(0.97); filter: blur(6px); }
+}
+
+@keyframes fluid-in {
+    from { opacity: 0; transform: scale(1.02); filter: blur(5px); }
+    to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
 /* ── Screen enter/exit ── */
 .screen.entering .hud-shell {
     animation: hud-snap-in 0.55s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
@@ -241,12 +261,12 @@
 /* ── Typewriter cursor ── */
 .type-cursor {
     display: inline-block;
-    width: 9px;
-    height: 16px;
+    width: 14px;
+    height: 1.1em;
     background: var(--green);
     animation: blink 0.9s step-end infinite;
     vertical-align: text-bottom;
-    margin-left: 2px;
+    margin-left: 4px;
 }
 
 @keyframes blink {

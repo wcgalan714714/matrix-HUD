@@ -4,14 +4,13 @@ import {
     setMode, getCachedVitals, setCachedVitals, clearMode,
 } from './storage.js';
 import { initMatrixRain } from './matrix-rain.js';
-import { initRadar } from './radar.js';
+
 import {
-    bindLiquidButtons, runPreloader, runWakeUpSequence, runBootSequence,
+    bindLiquidButtons, runWakeUpSequence,
     startHexTicker, startMarquee, startBlueTicker,
 } from './startup.js';
 import {
-    navigateTo, playBlockReveal, playCascade, playMatrixGlitchReveal,
-    playWhiteRabbit, playBlinds, playFileParsing, showScreenInstant,
+    transitionFluid, playBlinds, playFileParsing, showScreenInstant,
 } from './transitions.js';
 import { duckAmbience, restoreAmbience } from './ambience.js';
 
@@ -19,7 +18,7 @@ const AUTO_SYNC_MS = 30 * 1000;
 const STALE_MS = 2 * 60 * 1000;
 
 let rain = null;
-let radar = null;
+
 let autoSyncTimer = null;
 let syncing = false;
 let focusMode = false;
@@ -303,26 +302,10 @@ function setupAutoSync() {
 
 /* ── Startup flow ── */
 
-async function runStartupFlow() {
+function runStartupFlow() {
     clearMode();
-    rain.start(0.9);
-
-    await runPreloader(pct => {
-        $('preloader-fill').style.width = `${pct}%`;
-        $('preloader-pct').textContent = `${String(pct).padStart(3, '0')}%`;
-        if (pct > 60) $('preloader-status').textContent = 'DECRYPTING NEURAL PATHWAY...';
-        if (pct > 85) $('preloader-status').textContent = 'MATRIX PROTOCOL READY';
-        if (pct > 95) $('preloader-status').textContent = 'GLITCH REVEAL IMMINENT...';
-    }, $('preloader-terminal'));
-
-    rain?.burst();
-    await playMatrixGlitchReveal();
-
-    showScreenInstant('screen-wake');
-    $('screen-wake')?.classList.add('wake-zoom');
-    setTimeout(() => $('screen-wake')?.classList.remove('wake-zoom'), 700);
+    rain.start(0.45);
     setBodyPhase('phase-wake');
-    rain.setIntensity(0.5);
     bindLiquidButtons();
 
     const enterBtn = $('enter-btn');
@@ -336,12 +319,7 @@ async function runStartupFlow() {
 }
 
 async function enterSimulation() {
-    await playBlockReveal('CHOICE PROTOCOL');
-    await playWhiteRabbit();
-    await playCascade('rise');
-    showScreenInstant('screen-pill');
-    $('screen-pill')?.classList.add('entering');
-    setTimeout(() => $('screen-pill')?.classList.remove('entering'), 520);
+    await transitionFluid('screen-wake', 'screen-pill');
     bindLiquidButtons();
 }
 
@@ -352,40 +330,23 @@ async function choosePill(mode) {
     if (mode === 'blue') {
         rain.stop();
         setBodyPhase('phase-hud');
-        await navigateTo('screen-hud-blue', { effect: 'binary', enterClass: 'blue-enter' });
+        await transitionFluid('screen-pill', 'screen-hud-blue');
+        $('screen-hud-blue')?.classList.add('blue-enter');
+        setTimeout(() => $('screen-hud-blue')?.classList.remove('blue-enter'), 480);
         startBlueDecorations();
         bindLiquidButtons();
         await syncVitals({ forceDemo: !getToken() });
         return;
     }
 
-    await playCascade('rise');
-    showScreenInstant('screen-boot');
-    $('screen-boot')?.classList.add('entering');
-    setTimeout(() => $('screen-boot')?.classList.remove('entering'), 520);
-    setBodyPhase('phase-boot');
+    setBodyPhase('phase-hud');
     document.body.classList.add('mode-red');
-    rain.setIntensity(0.65);
-    rain.start(0.65);
+    rain.setIntensity(0.3);
+    rain.start(0.3);
+    await transitionFluid('screen-pill', 'screen-hud-red');
+    startHudDecorations();
     bindLiquidButtons();
-
-    radar = initRadar($('boot-radar'));
-    radar.start();
-
-    runBootSequence($('boot-terminal'), $('boot-progress-fill'), async () => {
-        radar.stop();
-        await playBlockReveal('NEURAL LINK');
-        await playCascade('fall');
-        setBodyPhase('phase-hud');
-        showScreenInstant('screen-hud-red');
-        $('screen-hud-red')?.classList.add('entering');
-        setTimeout(() => $('screen-hud-red')?.classList.remove('entering'), 520);
-        rain.setIntensity(0.3);
-        rain.start(0.3);
-        startHudDecorations();
-        bindLiquidButtons();
-        await syncVitals();
-    });
+    await syncVitals();
 }
 
 function startHudDecorations() {

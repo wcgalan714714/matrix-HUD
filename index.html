@@ -43,7 +43,7 @@
         startAmbience();
     </script>
 </head>
-<body class="phase-preloader">
+<body class="phase-wake">
     <canvas id="matrix-canvas" aria-hidden="true"></canvas>
     <div class="hex-grid" aria-hidden="true"></div>
     <div class="scanline" aria-hidden="true"></div>
@@ -54,66 +54,27 @@
 
     <div class="top-marquee" id="top-marquee" aria-hidden="true"></div>
 
-    <!-- 0 · PRELOADER -->
-    <section id="screen-preloader" class="screen active" aria-label="Loading">
-        <div class="preloader-content zoom-enter">
-            <div class="logo logo-xl preloader-logo">SYNTH</div>
-            <div class="section-tag">NEURAL LINK INITIALIZING</div>
-            <div class="preloader-bar"><div id="preloader-fill" class="preloader-fill"></div></div>
-            <div class="preloader-pct" id="preloader-pct">000%</div>
-            <div id="preloader-terminal" class="preloader-terminal glass-panel" aria-live="polite"></div>
-            <div class="wake-line dim preloader-status" id="preloader-status">LOADING MATRIX PROTOCOL...</div>
-        </div>
-    </section>
-
-    <!-- 1 · WAKE UP -->
-    <section id="screen-wake" class="screen" aria-label="Wake up sequence">
-        <div class="hud-shell">
-            <div class="section-tag">SEC.00 — TERMINAL ACCESS</div>
-            <div class="glass-panel wake-panel hud-frame liquid-card">
-                <span class="frame-bracket tl"></span>
-                <span class="frame-bracket tr"></span>
-                <span class="frame-bracket bl"></span>
-                <span class="frame-bracket br"></span>
-                <div id="wake-container"></div>
-                <div class="wake-actions">
-                    <button id="enter-btn" class="liquid-btn wide wake-btn-hidden"><span class="liquid-btn-label">ENTER SIMULATION</span></button>
-                </div>
+    <!-- 1 · WAKE UP — fullscreen for Meta Display -->
+    <section id="screen-wake" class="screen active" aria-label="Wake up sequence">
+        <div class="wake-fullscreen">
+            <div id="wake-container" class="wake-container-full"></div>
+            <div class="wake-actions-full">
+                <button id="enter-btn" class="liquid-btn wake-enter-btn wake-btn-hidden"><span class="liquid-btn-label">ENTER</span></button>
             </div>
         </div>
     </section>
 
-    <!-- 2 · PILL CHOICE -->
+    <!-- 2 · PILL CHOICE — minimalist fullscreen -->
     <section id="screen-pill" class="screen" aria-label="Red or Blue Pill">
-        <div class="hud-shell pill-screen">
-            <div class="logo logo-xl">SYNTH</div>
-            <div class="section-tag">SEC.01 — CHOICE PROTOCOL</div>
-            <p class="pill-quote">"This is your last chance. After this, there is no turning back."</p>
-            <div class="pill-cards">
-                <div class="glass-panel pill-choice-card red-card liquid-card">
-                    <div class="pill-card-tag">RED PILL</div>
-                    <p class="pill-card-desc">Full neural interface — the Matrix awaits.</p>
-                    <ul class="pill-features">
-                        <li>Matrix digital rain overlay</li>
-                        <li>NERV boot + radar sequence</li>
-                        <li>Tactical glass HUD + telemetry</li>
-                        <li>Oura Ring 5 live vitals</li>
-                    </ul>
-                    <button id="pill-red" class="liquid-btn red"><span class="liquid-btn-label">TAKE RED PILL</span></button>
-                </div>
-                <div class="glass-panel pill-choice-card blue-card liquid-card">
-                    <div class="pill-card-tag">BLUE PILL</div>
-                    <p class="pill-card-desc">NERV static channel — Evangelion × cyberpunk glance HUD.</p>
-                    <ul class="pill-features">
-                        <li>MAGI-style brackets + warning stripes</li>
-                        <li>Neon cyan/magenta vital modules</li>
-                        <li>Core vitals · binary entry</li>
-                        <li>Oura Ring 5 live vitals</li>
-                    </ul>
-                    <button id="pill-blue" class="liquid-btn blue"><span class="liquid-btn-label">TAKE BLUE PILL</span></button>
-                </div>
+        <div class="pill-fullscreen">
+            <div class="pill-choice-stack">
+                <button id="pill-red" class="pill-giant-btn pill-giant-red liquid-btn red" aria-label="Red Pill">
+                    <span class="pill-giant-label">RED PILL</span>
+                </button>
+                <button id="pill-blue" class="pill-giant-btn pill-giant-blue liquid-btn blue" aria-label="Blue Pill">
+                    <span class="pill-giant-label">BLUE PILL</span>
+                </button>
             </div>
-            <p class="pill-hint">Your choice determines the entire experience.</p>
         </div>
     </section>
 

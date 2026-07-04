@@ -154,3 +154,18 @@ export async function navigateTo(screenId, { effect = 'cascade', enterClass = 'e
 export async function transitionToScreen(screenId, effect = 'cascade') {
     await navigateTo(screenId, { effect });
 }
+
+/** Smooth liquid crossfade — glasses-friendly, no heavy overlays */
+export async function transitionFluid(fromScreenId, toScreenId) {
+    const from = document.getElementById(fromScreenId);
+    if (from) from.classList.add('screen-exit');
+    await wait(340);
+    document.querySelectorAll('.screen').forEach(s => {
+        s.classList.remove('active', 'entering', 'blue-enter', 'screen-exit', 'screen-fluid-enter');
+    });
+    const to = document.getElementById(toScreenId);
+    if (to) {
+        to.classList.add('active', 'screen-fluid-enter');
+        setTimeout(() => to.classList.remove('screen-fluid-enter'), 480);
+    }
+}

@@ -68,7 +68,7 @@ export function runWakeUpSequence(container, onComplete) {
                 cursor.remove();
                 setTimeout(typeNextLine, spec.dim ? 380 : 520);
             }
-        }, 34);
+        }, 42);
     }
 
     typeNextLine();
