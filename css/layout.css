@@ -129,8 +129,9 @@ body.mode-blue .scanline { display: none; }
 }
 
 #screen-wake.active,
-#screen-pill.active {
-    padding: 20px;
+#screen-pill.active,
+#screen-hud-blue.active {
+    padding: 0;
     justify-content: stretch;
     align-items: stretch;
 }

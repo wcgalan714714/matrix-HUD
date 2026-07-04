@@ -490,15 +490,49 @@ body.phase-preloader .crt-flicker {
     100% { transform: translateY(200%); opacity: 0; }
 }
 
-/* Blue pill: cyber snap-in */
-.screen.blue-enter .eva-cyber-panel {
-    animation: blue-cyber-in 0.42s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+/* Blue pill: fullscreen enter + staggered tiles */
+.screen.blue-enter .blue-fullscreen {
+    animation: blue-cyber-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.screen.blue-enter .blue-hero-tile {
+    animation: blue-tile-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+}
+
+.screen.blue-enter .blue-metric-tile {
+    animation: blue-tile-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(0.18s + var(--i, 0) * 0.07s);
 }
 
 @keyframes blue-cyber-in {
-    0% { opacity: 0; transform: scale(0.96) translateY(10px); filter: blur(3px); }
-    70% { opacity: 1; transform: scale(1.01); filter: blur(0); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
+    0% { opacity: 0; transform: scale(1.02); filter: blur(4px); }
+    100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes blue-tile-in {
+    0% { opacity: 0; transform: translateY(12px) scale(0.97); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes blue-aurora-spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes blue-scan-drift {
+    0% { top: 8%; opacity: 0; }
+    15% { opacity: 0.8; }
+    85% { opacity: 0.8; }
+    100% { top: 92%; opacity: 0; }
+}
+
+@keyframes blue-corner-pulse {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.85; }
+}
+
+@keyframes blue-hero-glow {
+    0%, 100% { text-shadow: 0 0 20px rgba(0, 229, 255, 0.4); }
+    50% { text-shadow: 0 0 28px rgba(0, 229, 255, 0.65), 0 0 40px rgba(255, 45, 154, 0.15); }
 }
 
 body.mode-blue .binary-overlay {

@@ -47,7 +47,6 @@ function cacheElements() {
     els.syncDotRed = $('sync-dot-red');
     els.syncDotBlue = $('sync-dot-blue');
     els.tokenPillRed = $('token-pill-red');
-    els.tokenPillBlue = $('token-pill-blue');
 }
 
 function setBodyPhase(phase) {
@@ -69,10 +68,16 @@ function setMeta(key, value) {
     });
 }
 
-function setSyncLabel(text, className = 'last-sync') {
-    document.querySelectorAll('[data-sync="label"]').forEach(el => {
-        el.textContent = text;
+function setSyncLabel(redText, className = 'last-sync', blueText = null) {
+    const blueClass = className.replace(/\blast-sync\b/g, 'blue-sync-label');
+    const blue = blueText ?? redText.replace(/^LAST SYNC:/, 'SYNC:');
+    document.querySelectorAll('#screen-hud-red [data-sync="label"]').forEach(el => {
+        el.textContent = redText;
         el.className = className;
+    });
+    document.querySelectorAll('#screen-hud-blue [data-sync="label"]').forEach(el => {
+        el.textContent = blue;
+        el.className = blueClass;
     });
 }
 
@@ -131,15 +136,13 @@ function showHudError(message) {
 
 function updateTokenIndicators(state = 'idle') {
     const hasToken = !!getToken();
-    [els.tokenPillRed, els.tokenPillBlue].forEach(pill => {
-        if (!pill) return;
-        if (hasToken) {
-            pill.classList.add('hidden');
-        } else {
-            pill.textContent = 'NO TOKEN — DEMO DATA';
-            pill.classList.remove('hidden');
+    if (els.tokenPillRed) {
+        if (hasToken) els.tokenPillRed.classList.add('hidden');
+        else {
+            els.tokenPillRed.textContent = 'NO TOKEN — DEMO DATA';
+            els.tokenPillRed.classList.remove('hidden');
         }
-    });
+    }
     if (els.tokenStatusDot && els.tokenStatusLabel) {
         els.tokenStatusDot.classList.remove('live', 'loading', 'error');
         if (state === 'loading') {
@@ -228,9 +231,11 @@ function renderVitals(vitals, state = 'success') {
     setMeta('hr', vitals.hrMeta || '—');
 
     const age = vitals.syncedAt ? Date.now() - vitals.syncedAt : Infinity;
-    const label = state === 'error' ? 'SYNC FAILED' : `LAST SYNC: ${formatSyncTime(vitals.syncedAt)}`;
+    const time = formatSyncTime(vitals.syncedAt);
+    const redLabel = state === 'error' ? 'SYNC FAILED' : `LAST SYNC: ${time}`;
+    const blueLabel = state === 'error' ? 'SYNC FAILED' : `SYNC: ${time}`;
     const syncClass = 'last-sync' + (age > STALE_MS ? ' stale' : '') + (state === 'error' ? ' error' : '');
-    setSyncLabel(label, syncClass);
+    setSyncLabel(redLabel, syncClass, blueLabel);
 
     updateStatusLine(vitals, state);
     updateWarning(vitals);
@@ -332,7 +337,7 @@ async function choosePill(mode) {
         setBodyPhase('phase-hud');
         await transitionFluid('screen-pill', 'screen-hud-blue');
         $('screen-hud-blue')?.classList.add('blue-enter');
-        setTimeout(() => $('screen-hud-blue')?.classList.remove('blue-enter'), 480);
+        setTimeout(() => $('screen-hud-blue')?.classList.remove('blue-enter'), 1000);
         startBlueDecorations();
         bindLiquidButtons();
         await syncVitals({ forceDemo: !getToken() });

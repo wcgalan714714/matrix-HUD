@@ -172,70 +172,70 @@
         </div>
     </section>
 
-    <!-- 4b · BLUE PILL HUD -->
+    <!-- 4b · BLUE PILL HUD — fullscreen Meta Display 600×600 -->
     <section id="screen-hud-blue" class="screen" aria-label="Blue Pill Vitals HUD">
-        <div class="blue-hud-shell hud-shell-glance">
-            <div id="hud-error-blue" class="hud-error-banner hidden" role="alert"></div>
-            <div class="eva-cyber-panel hud-frame liquid-card-blue">
-                <span class="frame-bracket tl eva-bracket"></span>
-                <span class="frame-bracket tr cyber-bracket"></span>
-                <span class="frame-bracket bl cyber-bracket"></span>
-                <span class="frame-bracket br eva-bracket"></span>
-                <div class="eva-stripe-bar" aria-hidden="true">WARNING · STATIC VITALS CHANNEL · MAGI SYNC ACTIVE</div>
-                <header class="blue-hud-header">
-                    <div>
-                        <div class="eva-unit-id">UNIT-02 // BLUE PILL</div>
-                        <div class="section-tag blue-section-tag">SEC.03 — GLANCE MODE</div>
-                    </div>
-                    <div class="hud-header-actions">
-                        <div id="token-pill-blue" class="token-pill blue hidden">NO TOKEN</div>
-                        <button id="settings-btn-blue" class="liquid-btn icon blue" aria-label="Settings"><span class="liquid-btn-label">⚙</span></button>
-                    </div>
-                </header>
+        <div class="blue-fullscreen">
+            <div class="blue-motion-bg" aria-hidden="true">
+                <div class="blue-aurora"></div>
+                <div class="blue-scan-beam"></div>
+                <span class="blue-corner blue-corner-tl"></span>
+                <span class="blue-corner blue-corner-tr"></span>
+                <span class="blue-corner blue-corner-bl"></span>
+                <span class="blue-corner blue-corner-br"></span>
+            </div>
 
-                <div id="vitals-panel-blue" class="vitals-panel" data-vitals-panel>
-                    <div class="sync-loading-overlay hidden" data-sync-loading aria-hidden="true">
-                        <div class="sync-spinner"></div>
-                        <span class="sync-loading-text">FETCHING OURA DATA...</span>
-                    </div>
-                    <div class="cyber-readiness-block liquid-card-blue">
-                        <div class="cyber-module-label">READINESS</div>
-                        <div class="cyber-readiness-value"><span data-vital="readiness" class="vital-value vital-value-hero">—</span></div>
-                        <div data-meta="readiness" class="vital-meta cyber-meta">—</div>
-                    </div>
-                    <div class="cyber-vitals-grid">
-                        <div class="cyber-vital-module liquid-card-blue">
-                            <div class="cyber-module-label">SLEEP</div>
-                            <div><span data-vital="sleep" class="vital-value">—</span></div>
-                            <div data-meta="sleep" class="vital-meta cyber-meta">Last night</div>
-                        </div>
-                        <div class="cyber-vital-module liquid-card-blue">
-                            <div class="cyber-module-label">HRV</div>
-                            <div><span data-vital="hrv" class="vital-value">—</span><span class="vital-unit">ms</span></div>
-                            <div data-meta="hrv" class="vital-meta cyber-meta">—</div>
-                        </div>
-                        <div class="cyber-vital-module liquid-card-blue">
-                            <div class="cyber-module-label">REST HR</div>
-                            <div><span data-vital="hr" class="vital-value">—</span><span class="vital-unit">bpm</span></div>
-                            <div data-meta="hr" class="vital-meta cyber-meta">—</div>
-                        </div>
-                        <div class="cyber-vital-module liquid-card-blue">
-                            <div class="cyber-module-label">ACTIVITY</div>
-                            <div><span data-vital="activity" class="vital-value">—</span></div>
-                            <div data-meta="activity" class="vital-meta cyber-meta">—</div>
-                        </div>
-                    </div>
+            <div id="hud-error-blue" class="hud-error-banner hidden" role="alert"></div>
+
+            <header class="blue-top-bar">
+                <div class="blue-mode-title">BLUE PILL</div>
+                <button id="settings-btn-blue" class="liquid-btn icon blue" aria-label="Settings">
+                    <span class="liquid-btn-label">⚙</span>
+                </button>
+            </header>
+
+            <div id="vitals-panel-blue" class="blue-body" data-vitals-panel>
+                <div class="sync-loading-overlay hidden" data-sync-loading aria-hidden="true">
+                    <div class="sync-spinner"></div>
+                    <span class="sync-loading-text">SYNCING OURA...</span>
                 </div>
 
-                <div id="blue-hex-ticker" class="hex-ticker blue-ticker"></div>
-                <footer class="blue-hud-footer">
-                    <div class="sync-status">
-                        <span class="sync-dot blue" id="sync-dot-blue" aria-hidden="true"></span>
-                        <div data-sync="label" class="last-sync">LAST SYNC: NEVER</div>
+                <div class="blue-hero-tile">
+                    <div class="blue-tile-label">READINESS</div>
+                    <span data-vital="readiness" class="vital-value blue-hero-num">—</span>
+                    <div data-meta="readiness" class="blue-hero-meta">—</div>
+                </div>
+
+                <div class="blue-metrics-grid">
+                    <div class="blue-metric-tile" style="--i:0">
+                        <div class="blue-tile-label">SLEEP</div>
+                        <div><span data-vital="sleep" class="vital-value">—</span></div>
                     </div>
-                    <button id="sync-btn-blue" class="liquid-btn blue"><span class="liquid-btn-label">REFRESH</span></button>
-                </footer>
+                    <div class="blue-metric-tile" style="--i:1">
+                        <div class="blue-tile-label">HRV</div>
+                        <div><span data-vital="hrv" class="vital-value">—</span><span class="vital-unit">ms</span></div>
+                    </div>
+                    <div class="blue-metric-tile" style="--i:2">
+                        <div class="blue-tile-label">REST HR</div>
+                        <div><span data-vital="hr" class="vital-value">—</span><span class="vital-unit">bpm</span></div>
+                    </div>
+                    <div class="blue-metric-tile" style="--i:3">
+                        <div class="blue-tile-label">ACTIVITY</div>
+                        <div><span data-vital="activity" class="vital-value">—</span></div>
+                    </div>
+                </div>
             </div>
+
+            <footer class="blue-foot-bar">
+                <div class="sync-status">
+                    <span class="sync-dot blue" id="sync-dot-blue" aria-hidden="true"></span>
+                    <div data-sync="label" class="blue-sync-label">SYNC: NEVER</div>
+                </div>
+                <button id="sync-btn-blue" class="liquid-btn blue blue-refresh-btn">
+                    <span class="liquid-btn-label">REFRESH</span>
+                </button>
+            </footer>
+
+            <div id="blue-hex-ticker" class="blue-ticker-strip" aria-hidden="true"></div>
         </div>
     </section>
 
