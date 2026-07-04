@@ -1,19 +1,7 @@
 const BOOT_LINES = [
-    { text: '> WAKE UP, NEO.', cls: '' },
-    { text: '> INITIALIZING CORE...', cls: '' },
     { text: '> MAGI SYSTEM READY', cls: 'amber' },
     { text: '> SYNTH NEURAL LINK ONLINE', cls: '' },
     { text: '> OURA CHANNEL: STANDBY', cls: 'dim' },
-    { text: '> GLANCEABILITY PROTOCOL ACTIVE', cls: 'dim' },
-    { text: '> FOLLOW THE WHITE RABBIT...', cls: 'dim' },
-];
-
-const WAKE_LINES = [
-    { text: 'Wake up, Neo...', dim: false },
-    { text: 'The Matrix has you.', dim: false },
-    { text: 'Follow the white rabbit.', dim: false },
-    { text: '', dim: true },
-    { text: 'Knock, knock, Neo.', dim: true },
 ];
 
 function bindRipple(btn) {
@@ -24,11 +12,8 @@ function bindRipple(btn) {
         btn.style.setProperty('--x', `${x - rect.left}px`);
         btn.style.setProperty('--y', `${y - rect.top}px`);
     };
-    btn.addEventListener('mousemove', e => setPos(e.clientX, e.clientY));
-    btn.addEventListener('touchstart', e => {
-        const t = e.touches[0];
-        setPos(t.clientX, t.clientY);
-    }, { passive: true });
+    btn.addEventListener('pointermove', e => setPos(e.clientX, e.clientY));
+    btn.addEventListener('pointerdown', e => setPos(e.clientX, e.clientY));
 }
 
 export function bindLiquidButtons(root = document) {
@@ -52,60 +37,9 @@ export function runPreloader(onProgress) {
     });
 }
 
-export function runWakeUpSequence(container, onComplete) {
-    container.innerHTML = '';
-    let lineIdx = 0;
-
-    function typeNextLine() {
-        if (lineIdx >= WAKE_LINES.length) {
-            const inputRow = document.createElement('div');
-            inputRow.style.marginTop = '8px';
-            const prompt = document.createElement('span');
-            prompt.className = 'wake-line dim';
-            prompt.textContent = '> ';
-            const input = document.createElement('input');
-            input.className = 'terminal-input';
-            input.placeholder = 'ENTER  OR  WHITE RABBIT';
-            input.id = 'wake-input';
-            inputRow.appendChild(prompt);
-            inputRow.appendChild(input);
-            container.appendChild(inputRow);
-            onComplete?.(input);
-            return;
-        }
-
-        const spec = WAKE_LINES[lineIdx++];
-        const lineEl = document.createElement('div');
-        lineEl.className = 'wake-line' + (spec.dim ? ' dim' : '');
-        container.appendChild(lineEl);
-
-        if (!spec.text) {
-            setTimeout(typeNextLine, 200);
-            return;
-        }
-
-        let charIdx = 0;
-        const cursor = document.createElement('span');
-        cursor.className = 'type-cursor';
-
-        const typeTimer = setInterval(() => {
-            if (charIdx < spec.text.length) {
-                lineEl.textContent = spec.text.slice(0, ++charIdx);
-                lineEl.appendChild(cursor);
-            } else {
-                clearInterval(typeTimer);
-                cursor.remove();
-                setTimeout(typeNextLine, spec.dim ? 400 : 550);
-            }
-        }, 36);
-    }
-
-    typeNextLine();
-}
-
 export function runBootSequence(container, progressEl, onComplete) {
     container.innerHTML = '';
-    const GAP = 340;
+    const GAP = 110;
 
     BOOT_LINES.forEach((spec, i) => {
         setTimeout(() => {
@@ -123,8 +57,8 @@ export function runBootSequence(container, progressEl, onComplete) {
         done.textContent = '> NEURAL LINK ESTABLISHED';
         container.appendChild(done);
         if (progressEl) progressEl.style.width = '100%';
-        setTimeout(onComplete, 700);
-    }, BOOT_LINES.length * GAP + 200);
+        setTimeout(onComplete, 400);
+    }, BOOT_LINES.length * GAP + 120);
 }
 
 export function startHexTicker(el) {

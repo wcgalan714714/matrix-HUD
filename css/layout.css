@@ -20,9 +20,7 @@ body {
     cursor: crosshair;
 }
 
-body.blue-pill {
-    cursor: default;
-}
+
 
 #matrix-canvas {
     position: fixed;
@@ -37,7 +35,7 @@ body.phase-hud #matrix-canvas {
     opacity: 0.28;
 }
 
-body.blue-pill #matrix-canvas {
+body.mode-blue #matrix-canvas {
     opacity: 0;
 }
 
@@ -56,7 +54,7 @@ body.blue-pill #matrix-canvas {
     background-position: 0 0, 0 0, 24px 42px, 24px 42px;
 }
 
-body.blue-pill .hex-grid { display: none; }
+body.mode-blue .hex-grid { display: none; }
 
 .scanline {
     position: fixed;
@@ -73,7 +71,7 @@ body.blue-pill .hex-grid { display: none; }
     animation: scan-drift 4.5s linear infinite;
 }
 
-body.blue-pill .scanline { display: none; }
+body.mode-blue .scanline { display: none; }
 
 @keyframes scan-drift {
     0% { transform: translateY(-100%); }
@@ -160,7 +158,7 @@ body.blue-pill .scanline { display: none; }
     border-radius: 50%;
 }
 
-body.blue-pill .crosshair-deco { display: none; }
+body.mode-blue .crosshair-deco { display: none; }
 
 .hidden { display: none !important; }
 
@@ -175,4 +173,4 @@ body.blue-pill .crosshair-deco { display: none; }
     border-bottom: 1px solid rgba(0, 255, 65, 0.15);
 }
 
-body.blue-pill .top-marquee { display: none; }
+body.mode-blue .top-marquee { display: none; }

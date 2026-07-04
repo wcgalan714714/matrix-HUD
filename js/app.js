@@ -6,13 +6,11 @@ import {
 import { initMatrixRain } from './matrix-rain.js';
 import { initRadar } from './radar.js';
 import {
-    bindLiquidButtons, runPreloader, runWakeUpSequence,
-    runBootSequence, startHexTicker, startMarquee,
+    bindLiquidButtons, runPreloader, runBootSequence,
+    startHexTicker, startMarquee,
 } from './startup.js';
 import {
-    transitionToScreen, playCascade, playPortalTransition,
-    playRedPillTransition, playRedHudReveal, playFileParsing,
-    playBlinds, showScreenInstant,
+    playQuickTransition, playBlinds, playFileParsing, showScreenInstant,
 } from './transitions.js';
 import { duckAmbience, restoreAmbience } from './ambience.js';
 
@@ -26,11 +24,14 @@ let syncing = false;
 let focusMode = false;
 let currentVitals = null;
 let experienceMode = null;
-let wakeInput = null;
 
 const els = {};
 
 function $(id) { return document.getElementById(id); }
+
+function hudScreenId() {
+    return experienceMode === 'blue' ? 'screen-hud-blue' : 'screen-hud-red';
+}
 
 function cacheElements() {
     els.statusLine = $('status-line');
@@ -43,8 +44,8 @@ function cacheElements() {
 
 function setBodyPhase(phase) {
     document.body.className = phase;
-    if (experienceMode === 'red') document.body.classList.add('red-pill');
-    if (experienceMode === 'blue') document.body.classList.add('blue-pill');
+    if (experienceMode === 'red') document.body.classList.add('mode-red');
+    if (experienceMode === 'blue') document.body.classList.add('mode-blue');
     if (focusMode) document.body.classList.add('focus-mode');
 }
 
@@ -85,7 +86,7 @@ function formatSyncTime(ts) {
 }
 
 function updateStatusLine(vitals, state) {
-    if (!els.statusLine) return;
+    if (!els.statusLine || experienceMode !== 'red') return;
     const greeting = contextGreeting();
     const token = getToken();
     if (!token) {
@@ -109,7 +110,7 @@ function updateStatusLine(vitals, state) {
 }
 
 function updateWarning(vitals) {
-    if (!els.warningBanner) return;
+    if (!els.warningBanner || experienceMode !== 'red') return;
     if (!vitals || vitals.readiness == null || vitals.readiness >= 55) {
         els.warningBanner.classList.add('hidden');
         return;
@@ -119,9 +120,10 @@ function updateWarning(vitals) {
 }
 
 function animateValues() {
-    document.querySelectorAll('.vital-value').forEach(v => {
-        v.classList.add('sync-pulse');
-        setTimeout(() => v.classList.remove('sync-pulse'), 600);
+    const pulseClass = experienceMode === 'blue' ? 'sync-pulse' : 'sync-pulse';
+    document.querySelectorAll(`#${hudScreenId()} .vital-value`).forEach(v => {
+        v.classList.add(pulseClass);
+        setTimeout(() => v.classList.remove(pulseClass), 600);
     });
 }
 
@@ -133,14 +135,17 @@ function renderVitals(vitals, state = 'success') {
     setVital('sleep', vitals.sleep ?? dash);
     setVital('hrv', vitals.hrv ?? dash);
     setVital('hr', vitals.restingHr ?? dash);
-    setVital('activity', vitals.activity ?? dash);
-    setVital('steps', vitals.steps != null ? vitals.steps.toLocaleString() : dash);
+
+    if (experienceMode === 'red') {
+        setVital('activity', vitals.activity ?? dash);
+        setVital('steps', vitals.steps != null ? vitals.steps.toLocaleString() : dash);
+        setMeta('activity', vitals.activityMeta || '—');
+    }
 
     setMeta('readiness', vitals.readinessMeta || '—');
     setMeta('sleep', vitals.sleepMeta || 'Last night');
     setMeta('hrv', vitals.hrvMeta || '—');
     setMeta('hr', vitals.hrMeta || '—');
-    setMeta('activity', vitals.activityMeta || '—');
 
     const age = vitals.syncedAt ? Date.now() - vitals.syncedAt : Infinity;
     const label = state === 'error' ? 'SYNC FAILED' : `LAST SYNC: ${formatSyncTime(vitals.syncedAt)}`;
@@ -210,26 +215,14 @@ async function runStartupFlow() {
         if (pct > 85) $('preloader-status').textContent = 'MATRIX PROTOCOL READY';
     });
 
-    document.querySelector('#screen-preloader .preloader-content')?.classList.add('crt-glitch');
-    await playCascade('rise');
-
-    rain.setIntensity(0.5);
-    await transitionToScreen('screen-wake', 'none');
+    await playQuickTransition();
+    showScreenInstant('screen-wake');
     setBodyPhase('phase-wake');
     bindLiquidButtons();
-
-    runWakeUpSequence($('wake-container'), input => {
-        wakeInput = input;
-        input.addEventListener('keydown', e => {
-            if (e.key === 'Enter') enterSimulation();
-            if (input.value.toUpperCase().includes('WHITE RABBIT')) enterSimulation();
-        });
-    });
 }
 
 async function enterSimulation() {
-    await playPortalTransition();
-    await transitionToScreen('screen-pill', 'none');
+    showScreenInstant('screen-pill');
     bindLiquidButtons();
 }
 
@@ -238,35 +231,33 @@ async function choosePill(mode) {
     setMode(mode);
 
     if (mode === 'blue') {
-        document.body.classList.add('blue-pill');
         rain.stop();
         setBodyPhase('phase-hud');
-
-        // Blue pill: no transition animation — instant minimal HUD
-        await showScreenInstant('screen-hud');
-        $('screen-hud')?.classList.add('blue-enter');
-        setTimeout(() => $('screen-hud')?.classList.remove('blue-enter'), 400);
+        showScreenInstant('screen-hud-blue');
+        $('screen-hud-blue')?.classList.add('blue-enter');
+        setTimeout(() => $('screen-hud-blue')?.classList.remove('blue-enter'), 350);
         bindLiquidButtons();
         await syncVitals({ forceDemo: !getToken() });
         return;
     }
 
-    // Red pill: full cinematic transition → boot → tactical HUD
-    document.body.classList.add('red-pill');
-    await playRedPillTransition();
-    await transitionToScreen('screen-boot', 'none');
+    // Red pill: straight to short boot → instant HUD (no stacked transitions)
     setBodyPhase('phase-boot');
-    rain.setIntensity(0.7);
-    rain.start(0.7);
+    document.body.classList.add('mode-red');
+    showScreenInstant('screen-boot');
+    rain.setIntensity(0.6);
+    rain.start(0.6);
+    bindLiquidButtons();
 
     radar = initRadar($('boot-radar'));
     radar.start();
 
     runBootSequence($('boot-terminal'), $('boot-progress-fill'), async () => {
         radar.stop();
-        await playRedHudReveal();
-        await transitionToScreen('screen-hud', 'none');
         setBodyPhase('phase-hud');
+        showScreenInstant('screen-hud-red');
+        $('screen-hud-red')?.classList.add('entering');
+        setTimeout(() => $('screen-hud-red')?.classList.remove('entering'), 450);
         rain.setIntensity(0.3);
         rain.start(0.3);
         startHudDecorations();
@@ -276,7 +267,6 @@ async function choosePill(mode) {
 }
 
 function startHudDecorations() {
-    if (experienceMode !== 'red') return;
     startMarquee($('top-marquee'));
     startHexTicker($('hex-ticker'));
 }
@@ -286,14 +276,14 @@ async function openSettings() {
     els.autoToggle.classList.toggle('on', getAutoSync());
     await playBlinds('close');
     await playFileParsing();
-    await transitionToScreen('screen-settings', 'none');
+    showScreenInstant('screen-settings');
     await playBlinds('open');
     bindLiquidButtons();
 }
 
 async function closeSettings() {
     await playBlinds('close');
-    await transitionToScreen('screen-hud', 'none');
+    showScreenInstant(hudScreenId());
     await playBlinds('open');
 }
 
@@ -306,13 +296,13 @@ async function saveSettings() {
 }
 
 function setupVoiceHints() {
+    const el = $('voice-hints');
+    if (!el) return;
     const hints = [
         '"Show vitals" · "How\'s my recovery?"',
         '"Sync" · "Focus mode" · "Settings"',
     ];
     let i = 0;
-    const el = $('voice-hints');
-    if (!el) return;
     setInterval(() => {
         i = (i + 1) % hints.length;
         el.style.opacity = '0';
@@ -327,7 +317,7 @@ function setupKeyboard() {
     document.addEventListener('keydown', e => {
         if (e.key === 'Enter' && $('screen-wake')?.classList.contains('active')) enterSimulation();
         if (e.key === 's' || e.key === 'S') {
-            if ($('screen-hud')?.classList.contains('active') && experienceMode === 'red') openSettings();
+            if ($('screen-hud-red')?.classList.contains('active')) openSettings();
         }
         if (e.key === 'f' || e.key === 'F') toggleFocus();
     });
@@ -358,6 +348,7 @@ function boot() {
     els.syncBtn?.addEventListener('click', () => syncVitals());
     els.syncBtnBlue?.addEventListener('click', () => syncVitals());
     $('settings-btn')?.addEventListener('click', openSettings);
+    $('settings-btn-blue')?.addEventListener('click', openSettings);
     $('settings-close').addEventListener('click', closeSettings);
     $('settings-save').addEventListener('click', saveSettings);
     els.autoToggle.addEventListener('click', () => els.autoToggle.classList.toggle('on'));

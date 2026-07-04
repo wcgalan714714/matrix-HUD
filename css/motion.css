@@ -28,16 +28,16 @@
 
 .cascade-bar.rise {
     transform-origin: bottom;
-    animation: cascade-rise 0.5s ease-out forwards;
+    animation: cascade-rise 0.28s ease-out forwards;
 }
 
 .cascade-bar.fall {
-    animation: cascade-fall 0.5s ease-in forwards;
+    animation: cascade-fall 0.28s ease-in forwards;
 }
 
 @keyframes cascade-rise {
     0% { transform: scaleY(0); }
-    40% { transform: scaleY(1); }
+    45% { transform: scaleY(1); }
     100% { transform: scaleY(0); transform-origin: top; }
 }
 
@@ -263,7 +263,7 @@
     100% { color: var(--green); transform: scale(1); }
 }
 
-body.blue-pill .vital-value.sync-pulse {
+body.mode-blue .vital-value.sync-pulse {
     animation: value-pulse-blue 0.6s ease;
 }
 
@@ -458,11 +458,11 @@ body.blue-pill .vital-value.sync-pulse {
 }
 
 /* Blue pill: gentle fade only */
-.screen.blue-enter {
+.screen.blue-enter .blue-hud-panel {
     animation: blue-fade-in 0.35s ease forwards;
 }
 
 @keyframes blue-fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
 }

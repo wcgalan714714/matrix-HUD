@@ -39,21 +39,32 @@
     transform: translateY(1px);
 }
 
-/* ── Liquid buttons (vault exact spec) ── */
+/* ── Liquid-glass buttons (vault: glassmorphism + liquid ripple) ── */
 .liquid-btn {
     position: relative;
     padding: 12px 28px;
     font-size: 14px;
     font-family: 'VT323', monospace;
     color: #00ff41;
-    background: transparent;
-    border: 2px solid #00ff41;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(10, 20, 12, 0.55) 45%,
+        rgba(0, 0, 0, 0.35) 100%
+    );
+    border: 1.5px solid rgba(0, 255, 65, 0.55);
     border-radius: 9999px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     text-transform: uppercase;
     letter-spacing: 2px;
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    box-shadow:
+        0 0 18px rgba(0, 255, 65, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.14),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
 
 .liquid-btn-label {
@@ -86,20 +97,37 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0, 255, 65, 0.3) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity 0.3s;
+    background:
+        radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0, 255, 65, 0.35) 0%, transparent 55%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 40%);
+    opacity: 0.45;
+    transition: opacity 0.25s ease;
     pointer-events: none;
 }
 
-.liquid-btn:active::after { opacity: 1; }
+.liquid-btn:hover::after,
+.liquid-btn:active::after,
+.liquid-btn:focus-visible::after { opacity: 1; }
 .liquid-btn:active { transform: scale(0.96); }
 .liquid-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* Settings uses liquid-glass too */
+.liquid-btn.icon {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 10px;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .liquid-btn.red {
     color: var(--alert);
-    border-color: var(--alert);
-    box-shadow: 0 0 16px rgba(255, 59, 92, 0.25);
+    border-color: rgba(255, 59, 92, 0.6);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(40, 8, 14, 0.6) 50%, rgba(0, 0, 0, 0.35) 100%);
+    box-shadow: 0 0 16px rgba(255, 59, 92, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 .liquid-btn.red::before {
     background: radial-gradient(circle, rgba(255, 59, 92, 0.4) 0%, transparent 70%);
@@ -110,8 +138,9 @@
 
 .liquid-btn.blue {
     color: var(--blue-pill);
-    border-color: var(--blue-pill);
-    box-shadow: 0 0 16px rgba(77, 163, 255, 0.2);
+    border-color: rgba(77, 163, 255, 0.55);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(12, 24, 40, 0.55) 50%, rgba(0, 0, 0, 0.3) 100%);
+    box-shadow: 0 0 16px rgba(77, 163, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 .liquid-btn.blue::before {
     background: radial-gradient(circle, rgba(77, 163, 255, 0.35) 0%, transparent 70%);
@@ -568,90 +597,133 @@
     justify-content: flex-end;
 }
 
-/* ── BLUE PILL minimal HUD ── */
+/* ── BLUE PILL minimal HUD (completely separate aesthetic) ── */
+body.mode-blue {
+    background: #12151c;
+    cursor: default;
+}
+
+body.mode-blue #matrix-canvas,
+body.mode-blue .hex-grid,
+body.mode-blue .scanline,
+body.mode-blue .crt-overlay,
+body.mode-blue .crt-flicker,
+body.mode-blue .crosshair-deco,
+body.mode-blue .top-marquee { display: none !important; }
+
+.blue-hud-shell {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px;
+}
+
 .blue-hud-panel {
-    background: rgba(18, 20, 24, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 20px 18px;
+    background: #161a22;
+    border: 1px solid rgba(77, 163, 255, 0.2);
+    border-radius: 16px;
+    padding: 24px 20px;
     box-shadow: none;
-    backdrop-filter: none;
+}
+
+.blue-hud-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.blue-hud-badge {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--blue-pill);
+    border: 1px solid rgba(77, 163, 255, 0.35);
+    border-radius: 4px;
+    padding: 3px 8px;
 }
 
 .blue-hud-title {
     font-family: var(--font-sans);
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 500;
-    color: #fff;
-    letter-spacing: 1px;
-    margin-bottom: 2px;
+    color: #f0f4f8;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
 }
 
 .blue-hud-sub {
     font-family: var(--font-sans);
-    font-size: 11px;
-    color: #8899aa;
-    margin-bottom: 16px;
+    font-size: 12px;
+    color: #7a8a9a;
+    margin-bottom: 22px;
+    line-height: 1.4;
 }
 
-.blue-vitals-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+.blue-vitals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 
-.blue-vital-card {
-    padding: 14px 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 10px;
+.blue-vital-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.blue-vital-card .vital-label {
+.blue-vital-row:last-child { border-bottom: none; }
+
+.blue-vital-row .vital-label {
     font-family: var(--font-sans);
-    font-size: 10px;
-    color: #8899aa;
-    letter-spacing: 1px;
+    font-size: 13px;
+    color: #8a9aaa;
+    text-transform: none;
+    letter-spacing: 0;
 }
 
-.blue-vital-card .vital-value {
+.blue-vital-row .vital-value {
     font-family: var(--font-sans);
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 500;
     color: #ffffff;
     text-shadow: none;
 }
 
-.blue-vital-card .vital-meta {
-    font-family: var(--font-sans);
+.blue-vital-row .vital-unit {
+    font-size: 14px;
     color: #6a7a8a;
+}
+
+.blue-vital-row .vital-meta {
+    font-family: var(--font-sans);
     font-size: 10px;
+    color: #5a6a7a;
+    text-align: right;
+    margin-top: 2px;
 }
 
 .blue-hud-footer {
-    margin-top: 16px;
+    margin-top: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .blue-hud-footer .last-sync {
     font-family: var(--font-sans);
+    font-size: 11px;
     color: #6a7a8a;
 }
 
-body.red-pill .blue-only,
-body:not(.blue-pill):not(.red-pill) .blue-only { display: none !important; }
-
-body.blue-pill .red-only { display: none !important; }
-
-body.blue-pill {
-    background: #0e1014;
-    cursor: default;
+/* Red pill mode */
+body.mode-red {
+    background: var(--bg);
 }
-
-body.blue-pill .glass-panel.red-hud-panel { display: none; }
 
 body.focus-mode #matrix-canvas,
 body.focus-mode .hex-grid,
