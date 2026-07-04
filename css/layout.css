@@ -72,11 +72,33 @@ body.mode-blue .hex-grid { display: none; }
     background: repeating-linear-gradient(
         to bottom,
         transparent 0,
-        transparent 2px,
-        rgba(0, 255, 65, 0.04) 2px,
-        rgba(0, 255, 65, 0.04) 3px
+        transparent 3px,
+        rgba(0, 255, 65, 0.03) 3px,
+        rgba(0, 255, 65, 0.03) 4px
     );
-    animation: scan-drift 4.5s linear infinite;
+    animation: scan-drift 8s linear infinite;
+}
+
+.ambient-glow {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 255, 65, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255, 184, 0, 0.04) 0%, transparent 55%);
+    animation: ambient-breathe 6s ease-in-out infinite;
+}
+
+@keyframes ambient-breathe {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+body.mode-blue .ambient-glow {
+    background:
+        radial-gradient(ellipse 70% 45% at 30% 0%, rgba(0, 229, 255, 0.05) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 35% at 90% 90%, rgba(255, 45, 154, 0.04) 0%, transparent 50%);
 }
 
 body.mode-blue .scanline { display: none; }

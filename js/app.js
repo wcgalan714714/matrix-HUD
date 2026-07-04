@@ -15,8 +15,8 @@ import {
 } from './transitions.js';
 import { duckAmbience, restoreAmbience } from './ambience.js';
 
-const AUTO_SYNC_MS = 30 * 60 * 1000;
-const STALE_MS = 15 * 60 * 1000;
+const AUTO_SYNC_MS = 30 * 1000;
+const STALE_MS = 2 * 60 * 1000;
 
 let rain = null;
 let radar = null;
@@ -41,6 +41,14 @@ function cacheElements() {
     els.syncBtnBlue = $('sync-btn-blue');
     els.tokenInput = $('token-input');
     els.autoToggle = $('auto-toggle');
+    els.tokenStatusDot = $('token-status-dot');
+    els.tokenStatusLabel = $('token-status-label');
+    els.hudErrorRed = $('hud-error-red');
+    els.hudErrorBlue = $('hud-error-blue');
+    els.syncDotRed = $('sync-dot-red');
+    els.syncDotBlue = $('sync-dot-blue');
+    els.tokenPillRed = $('token-pill-red');
+    els.tokenPillBlue = $('token-pill-blue');
 }
 
 function setBodyPhase(phase) {
@@ -79,11 +87,83 @@ function contextGreeting() {
 }
 
 function formatSyncTime(ts) {
-    if (!ts) return 'NEVER SYNCED';
-    const mins = Math.floor((Date.now() - ts) / 60000);
-    if (mins < 1) return 'JUST NOW';
-    if (mins < 60) return `${mins} MIN AGO`;
-    return `${Math.floor(mins / 60)} HR AGO`;
+    if (!ts) return 'NEVER';
+    const secs = Math.floor((Date.now() - ts) / 1000);
+    if (secs < 8) return 'JUST NOW';
+    if (secs < 60) return `${secs}S AGO`;
+    const mins = Math.floor(secs / 60);
+    if (mins < 60) return `${mins}M AGO`;
+    return `${Math.floor(mins / 60)}H AGO`;
+}
+
+function setLoadingState(loading) {
+    document.querySelectorAll('[data-sync-loading]').forEach(el => {
+        el.classList.toggle('hidden', !loading);
+    });
+    document.querySelectorAll('[data-vitals-panel]').forEach(el => {
+        el.classList.toggle('is-syncing', loading);
+    });
+    [els.syncDotRed, els.syncDotBlue].forEach(dot => {
+        if (!dot) return;
+        dot.classList.toggle('loading', loading);
+        if (loading) dot.classList.remove('live', 'error');
+    });
+}
+
+function setSyncDotState(state) {
+    const dots = [els.syncDotRed, els.syncDotBlue].filter(Boolean);
+    dots.forEach(dot => {
+        dot.classList.remove('live', 'loading', 'error');
+        if (state) dot.classList.add(state);
+    });
+}
+
+function showHudError(message) {
+    const el = experienceMode === 'blue' ? els.hudErrorBlue : els.hudErrorRed;
+    if (!el) return;
+    if (!message) {
+        el.classList.add('hidden');
+        el.textContent = '';
+        return;
+    }
+    el.textContent = message;
+    el.classList.remove('hidden');
+}
+
+function updateTokenIndicators(state = 'idle') {
+    const hasToken = !!getToken();
+    [els.tokenPillRed, els.tokenPillBlue].forEach(pill => {
+        if (!pill) return;
+        if (hasToken) {
+            pill.classList.add('hidden');
+        } else {
+            pill.textContent = 'NO TOKEN — DEMO DATA';
+            pill.classList.remove('hidden');
+        }
+    });
+    if (els.tokenStatusDot && els.tokenStatusLabel) {
+        els.tokenStatusDot.classList.remove('live', 'loading', 'error');
+        if (state === 'loading') {
+            els.tokenStatusDot.classList.add('loading');
+            els.tokenStatusLabel.textContent = 'TESTING CONNECTION...';
+            els.tokenStatusLabel.className = 'token-status-label';
+        } else if (!hasToken) {
+            els.tokenStatusLabel.textContent = 'NOT CONFIGURED';
+            els.tokenStatusLabel.className = 'token-status-label';
+        } else if (state === 'error') {
+            els.tokenStatusDot.classList.add('error');
+            els.tokenStatusLabel.textContent = 'CONNECTION FAILED';
+            els.tokenStatusLabel.className = 'token-status-label error';
+        } else if (state === 'connected') {
+            els.tokenStatusDot.classList.add('live');
+            els.tokenStatusLabel.textContent = 'OURA RING 5 LINKED';
+            els.tokenStatusLabel.className = 'token-status-label connected';
+        } else {
+            els.tokenStatusDot.classList.add('live');
+            els.tokenStatusLabel.textContent = 'TOKEN SAVED';
+            els.tokenStatusLabel.className = 'token-status-label connected';
+        }
+    }
 }
 
 function updateStatusLine(vitals, state) {
@@ -137,11 +217,11 @@ function renderVitals(vitals, state = 'success') {
     setVital('hrv', vitals.hrv ?? dash);
     setVital('hr', vitals.restingHr ?? dash);
 
+    setVital('activity', vitals.activity ?? dash);
     if (experienceMode === 'red') {
-        setVital('activity', vitals.activity ?? dash);
         setVital('steps', vitals.steps != null ? vitals.steps.toLocaleString() : dash);
-        setMeta('activity', vitals.activityMeta || '—');
     }
+    setMeta('activity', vitals.activityMeta || '—');
 
     setMeta('readiness', vitals.readinessMeta || '—');
     setMeta('sleep', vitals.sleepMeta || 'Last night');
@@ -155,6 +235,8 @@ function renderVitals(vitals, state = 'success') {
 
     updateStatusLine(vitals, state);
     updateWarning(vitals);
+    updateTokenIndicators(state === 'error' ? 'error' : getToken() ? 'connected' : 'idle');
+    if (state !== 'error') showHudError(null);
 }
 
 async function syncVitals({ forceDemo = false } = {}) {
@@ -162,7 +244,9 @@ async function syncVitals({ forceDemo = false } = {}) {
     syncing = true;
     if (els.syncBtn) els.syncBtn.disabled = true;
     if (els.syncBtnBlue) els.syncBtnBlue.disabled = true;
+    setLoadingState(true);
     updateStatusLine(currentVitals, 'loading');
+    setSyncLabel('SYNCING...', 'last-sync');
     animateValues();
     if (experienceMode === 'red') rain?.burst();
 
@@ -170,6 +254,7 @@ async function syncVitals({ forceDemo = false } = {}) {
     try {
         let vitals;
         if (!token || forceDemo) {
+            await wait(400);
             vitals = demoVitals();
             if (!token) vitals.source = 'demo';
         } else {
@@ -177,23 +262,35 @@ async function syncVitals({ forceDemo = false } = {}) {
                 vitals = await fetchVitals(token);
             } catch (err) {
                 const cached = getCachedVitals();
+                const msg = err.message || 'OURA UNREACHABLE';
+                showHudError(`⚠ ${msg}`);
+                setSyncDotState('error');
+                updateTokenIndicators('error');
                 if (cached) {
-                    renderVitals(cached, 'error');
-                    setSyncLabel(err.message || 'OURA UNREACHABLE', 'last-sync error');
-                    throw err;
+                    renderVitals({ ...cached, source: 'cache' }, 'error');
+                    setSyncLabel(`CACHED · ${msg}`, 'last-sync error');
+                } else {
+                    vitals = demoVitals();
+                    vitals.source = 'demo';
+                    renderVitals(vitals, 'error');
+                    setSyncLabel(`${msg} — DEMO FALLBACK`, 'last-sync error');
                 }
-                vitals = demoVitals();
-                vitals.source = 'demo';
-                setSyncLabel(`${err.message} — DEMO DATA`, 'last-sync stale');
+                return;
             }
         }
         setCachedVitals(vitals);
         renderVitals(vitals, 'success');
-    } catch { /* handled */ } finally {
+        setSyncDotState('live');
+    } finally {
         syncing = false;
+        setLoadingState(false);
         if (els.syncBtn) els.syncBtn.disabled = false;
         if (els.syncBtnBlue) els.syncBtnBlue.disabled = false;
     }
+}
+
+function wait(ms) {
+    return new Promise(r => setTimeout(r, ms));
 }
 
 function setupAutoSync() {
@@ -303,6 +400,8 @@ function startBlueDecorations() {
 async function openSettings() {
     els.tokenInput.value = getToken();
     els.autoToggle.classList.toggle('on', getAutoSync());
+    els.autoToggle.setAttribute('aria-checked', getAutoSync() ? 'true' : 'false');
+    updateTokenIndicators(getToken() ? 'connected' : 'idle');
     await playBlinds('close');
     await playFileParsing();
     showScreenInstant('screen-settings');
@@ -318,10 +417,13 @@ async function closeSettings() {
 
 async function saveSettings() {
     setToken(els.tokenInput.value);
-    setAutoSync(els.autoToggle.classList.contains('on'));
+    const autoOn = els.autoToggle.classList.contains('on');
+    setAutoSync(autoOn);
+    els.autoToggle.setAttribute('aria-checked', autoOn ? 'true' : 'false');
     setupAutoSync();
+    updateTokenIndicators('loading');
     await closeSettings();
-    syncVitals();
+    await syncVitals({ forceDemo: !getToken() });
 }
 
 function setupVoiceHints() {
@@ -382,7 +484,10 @@ function boot() {
     $('settings-btn-blue')?.addEventListener('click', openSettings);
     $('settings-close').addEventListener('click', closeSettings);
     $('settings-save').addEventListener('click', saveSettings);
-    els.autoToggle.addEventListener('click', () => els.autoToggle.classList.toggle('on'));
+    els.autoToggle.addEventListener('click', () => {
+        els.autoToggle.classList.toggle('on');
+        els.autoToggle.setAttribute('aria-checked', els.autoToggle.classList.contains('on') ? 'true' : 'false');
+    });
 
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
@@ -397,6 +502,7 @@ function boot() {
     setupVoiceHints();
     setupKeyboard();
     setupAutoSync();
+    updateTokenIndicators();
     runStartupFlow();
 }
 

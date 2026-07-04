@@ -18,8 +18,9 @@
     --font-mono: 'VT323', 'Courier New', monospace;
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --radius: 10px;
-    --hud-max: 580px;
-    --safe-margin: 12px;
+    --hud-max: 520px;
+    --safe-margin: 10px;
+    --glass-liquid: rgba(0, 255, 65, 0.06);
     --neo-shadow: 6px 6px 14px rgba(0, 0, 0, 0.55), -3px -3px 10px rgba(0, 255, 65, 0.04);
     --glass-blur: 18px;
 }

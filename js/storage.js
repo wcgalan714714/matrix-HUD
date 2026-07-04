@@ -14,7 +14,9 @@ export function setToken(token) {
 }
 
 export function getAutoSync() {
-    return localStorage.getItem(STORAGE_KEYS.autoSync) === 'true';
+    const v = localStorage.getItem(STORAGE_KEYS.autoSync);
+    if (v === null) return true;
+    return v === 'true';
 }
 
 export function setAutoSync(enabled) {
